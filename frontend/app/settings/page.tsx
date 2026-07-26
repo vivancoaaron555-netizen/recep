@@ -1,0 +1,348 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Building2, Bot, Radio, CreditCard, Save, Loader2,
+  ExternalLink, Check, AlertCircle, Phone, MessageCircle, Globe
+} from 'lucide-react';
+import { AppLayout } from '@/components/AppLayout';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
+
+type Tab = 'company' | 'assistant' | 'channels' | 'billing';
+
+const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
+  { id: 'company', label: 'Empresa', icon: Building2 },
+  { id: 'assistant', label: 'Recepcionista', icon: Bot },
+  { id: 'channels', label: 'Canales', icon: Radio },
+  { id: 'billing', label: 'Plan y Facturación', icon: CreditCard },
+];
+
+const PERSONALITIES = [
+  { id: 'professional', label: 'Profesional' },
+  { id: 'friendly', label: 'Amigable' },
+  { id: 'energetic', label: 'Energética' },
+  { id: 'calm', label: 'Tranquila' },
+];
+
+const VOICES = [
+  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sofia', gender: 'female' },
+  { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte', gender: 'female' },
+  { id: 'pNInz6obpgDQGcFmaJgB', name: 'Alejandro', gender: 'male' },
+  { id: 'N2lVS1w4EtoT3dr4eOWO', name: 'Carlos', gender: 'male' },
+];
+
+function CompanyTab({ data }: { data: any }) {
+  const [form, setForm] = useState({
+    name: data?.name || '',
+    sector: data?.sector || '',
+    address: data?.address || '',
+    phone: data?.phone || '',
+    website: data?.website || '',
+    faq: data?.faq || '',
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      await api.onboarding.saveCompany({
+        ...form,
+        schedule: data?.schedule || {},
+        services: data?.services || [],
+      });
+      toast.success('Empresa actualizada correctamente');
+    } catch (err: any) {
+      toast.error(err.message || 'Error al guardar');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <h2 className="font-semibold text-lg">Información de la Empresa</h2>
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="label">Nombre del negocio</label>
+          <input className="input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+        </div>
+        <div>
+          <label className="label">Sector</label>
+          <input className="input" value={form.sector} onChange={e => setForm({ ...form, sector: e.target.value })} />
+        </div>
+        <div>
+          <label className="label">Teléfono</label>
+          <input className="input" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+        </div>
+        <div>
+          <label className="label">Sitio web</label>
+          <input className="input" value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} />
+        </div>
+        <div className="md:col-span-2">
+          <label className="label">Dirección</label>
+          <input className="input" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
+        </div>
+        <div className="md:col-span-2">
+          <label className="label">Preguntas frecuentes</label>
+          <textarea className="input h-32 resize-none" value={form.faq} onChange={e => setForm({ ...form, faq: e.target.value })} />
+        </div>
+      </div>
+      <button onClick={handleSave} disabled={loading} className="btn-primary">
+        {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando...</> : <><Save className="w-4 h-4" /> Guardar cambios</>}
+      </button>
+    </div>
+  );
+}
+
+function AssistantTab() {
+  const [form, setForm] = useState({
+    name: 'Sofia',
+    gender: 'female',
+    voice_id: VOICES[0].id,
+    language: 'es',
+    personality: 'professional',
+  });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    api.auth.me().then(({ company }) => {
+      if (company?.id) {
+        // Would fetch assistant data here - using defaults for now
+      }
+    });
+  }, []);
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      await api.onboarding.saveAssistant(form);
+      toast.success('Recepcionista actualizada correctamente');
+    } catch (err: any) {
+      toast.error(err.message || 'Error al guardar');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <h2 className="font-semibold text-lg">Configuración de Recepcionista</h2>
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="label">Nombre</label>
+          <input className="input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+        </div>
+        <div>
+          <label className="label">Idioma</label>
+          <select className="input" value={form.language} onChange={e => setForm({ ...form, language: e.target.value })}>
+            <option value="es">Español</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div>
+          <label className="label">Género</label>
+          <select className="input" value={form.gender} onChange={e => setForm({ ...form, gender: e.target.value })}>
+            <option value="female">Femenino</option>
+            <option value="male">Masculino</option>
+          </select>
+        </div>
+        <div>
+          <label className="label">Voz</label>
+          <select className="input" value={form.voice_id} onChange={e => setForm({ ...form, voice_id: e.target.value })}>
+            {VOICES.filter(v => v.gender === form.gender).map(v => (
+              <option key={v.id} value={v.id}>{v.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="md:col-span-2">
+          <label className="label">Personalidad</label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {PERSONALITIES.map(p => (
+              <button key={p.id} type="button" onClick={() => setForm({ ...form, personality: p.id })}
+                className={`rounded-lg border-2 px-3 py-2 text-sm transition-all ${form.personality === p.id ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:border-border/80'}`}>
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <button onClick={handleSave} disabled={loading} className="btn-primary">
+        {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando...</> : <><Save className="w-4 h-4" /> Guardar cambios</>}
+      </button>
+    </div>
+  );
+}
+
+function ChannelsTab() {
+  return (
+    <div className="space-y-4">
+      <h2 className="font-semibold text-lg">Canales de Atención</h2>
+      {[
+        {
+          name: 'Llamadas telefónicas', icon: Phone, status: 'active', color: 'text-primary',
+          desc: 'Atención automática de llamadas con voz IA',
+        },
+        {
+          name: 'WhatsApp', icon: MessageCircle, status: 'active', color: 'text-green-500',
+          desc: 'Respuesta automática a mensajes de WhatsApp',
+        },
+        {
+          name: 'Widget Web', icon: Globe, status: 'coming_soon', color: 'text-muted-foreground',
+          desc: 'Chat con IA incrustado en tu sitio web',
+        },
+      ].map((channel) => (
+        <div key={channel.name} className="card flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center`}>
+              <channel.icon className={`w-5 h-5 ${channel.color}`} />
+            </div>
+            <div>
+              <p className="font-medium">{channel.name}</p>
+              <p className="text-sm text-muted-foreground">{channel.desc}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {channel.status === 'active' ? (
+              <span className="badge-success"><Check className="w-3 h-3" /> Activo</span>
+            ) : (
+              <span className="badge-muted">Próximamente</span>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BillingTab({ subscription }: { subscription: any }) {
+  const [loading, setLoading] = useState(false);
+
+  const openPortal = async () => {
+    setLoading(true);
+    try {
+      const { url } = await api.billing.openPortal();
+      window.location.href = url;
+    } catch (err: any) {
+      toast.error(err.message || 'Error al abrir portal');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const PLAN_INFO: Record<string, { name: string; price: string; features: string[] }> = {
+    basic: { name: 'Basic', price: '$49/mes', features: ['100 llamadas/mes', '500 WhatsApp', '1 número'] },
+    pro: { name: 'Pro', price: '$99/mes', features: ['500 llamadas/mes', 'WhatsApp ilimitado', '3 números'] },
+    clinic: { name: 'Clinic', price: '$199/mes', features: ['Llamadas ilimitadas', 'WhatsApp ilimitado', '10 números'] },
+  };
+
+  const planInfo = subscription?.plan ? PLAN_INFO[subscription.plan] : null;
+
+  return (
+    <div className="space-y-4">
+      <h2 className="font-semibold text-lg">Plan y Facturación</h2>
+
+      {planInfo ? (
+        <div className="card border-primary/30">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h3 className="font-bold text-xl">{planInfo.name}</h3>
+              <p className="text-muted-foreground">{planInfo.price}</p>
+            </div>
+            <span className={`badge ${
+              subscription?.status === 'active' ? 'badge-success' :
+              subscription?.status === 'trialing' ? 'badge-warning' :
+              'badge-error'
+            }`}>
+              {subscription?.status === 'active' ? 'Activo' :
+               subscription?.status === 'trialing' ? 'Trial' :
+               subscription?.status || 'Inactivo'}
+            </span>
+          </div>
+          <ul className="space-y-2 mb-6">
+            {planInfo.features.map(f => (
+              <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Check className="w-4 h-4 text-success" /> {f}
+              </li>
+            ))}
+          </ul>
+          <button onClick={openPortal} disabled={loading} className="btn-primary">
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Cargando...</> : <><ExternalLink className="w-4 h-4" /> Gestionar suscripción</>}
+          </button>
+        </div>
+      ) : (
+        <div className="card border-warning/30">
+          <div className="flex items-center gap-2 text-warning mb-3">
+            <AlertCircle className="w-5 h-5" />
+            <span className="font-medium">Sin suscripción activa</span>
+          </div>
+          <p className="text-muted-foreground text-sm mb-4">Activa un plan para continuar usando Recept.ai.</p>
+          <a href="/register" className="btn-primary inline-flex">Ver planes</a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function SettingsPage() {
+  const [activeTab, setActiveTab] = useState<Tab>('company');
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.auth.me().then((data) => {
+      setUserData(data);
+      setLoading(false);
+    });
+  }, []);
+
+  return (
+    <AppLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">Configuración</h1>
+          <p className="text-muted-foreground text-sm">Gestiona tu empresa, recepcionista y plan</p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 border-b border-border overflow-x-auto pb-1">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-lg transition-all flex-shrink-0 ${
+                activeTab === tab.id
+                  ? 'bg-card border border-b-card border-border text-foreground -mb-px'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="card">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : (
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {activeTab === 'company' && <CompanyTab data={userData?.company} />}
+              {activeTab === 'assistant' && <AssistantTab />}
+              {activeTab === 'channels' && <ChannelsTab />}
+              {activeTab === 'billing' && <BillingTab subscription={userData?.subscription} />}
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </AppLayout>
+  );
+}
