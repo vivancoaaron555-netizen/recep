@@ -48,6 +48,8 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', service: 'recept-ai-backend', timestamp: new Date().toISOString() });
 });
 
+
+
 // ─── API Routes ─────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/onboarding', onboardingRoutes);

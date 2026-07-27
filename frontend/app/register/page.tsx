@@ -80,10 +80,8 @@ function RegisterForm() {
 
       saveAuth(token, user);
 
-      // Create Stripe checkout session
-      toast.loading('Redirigiendo a pago...');
-      const { url } = await api.billing.createCheckout(selectedPlan);
-      window.location.href = url;
+      // Redirect to onboarding (Stripe checkout opcional por ahora)
+      router.push('/onboarding');
     } catch (err: any) {
       toast.error(err.message || 'Error al crear la cuenta');
       setStep('form');
