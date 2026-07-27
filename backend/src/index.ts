@@ -2,9 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
 import dotenv from 'dotenv';
 
-dotenv.config();
+// __dirname = backend/src/ (dev) or backend/dist/ (prod)
+// ../.env resolves to backend/.env in both cases
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 // Routes
 import authRoutes from './routes/auth';
