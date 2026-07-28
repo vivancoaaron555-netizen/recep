@@ -1,15 +1,21 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-function getToken(): string | null {
+let cachedToken: string | null = null;
+
+export function setApiToken(token: string | null) {
+  cachedToken = token;
+}
+
+export function getApiToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('recept_token');
+  return cachedToken || localStorage.getItem('recept_token');
 }
 
 async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = getToken();
+  const token = getApiToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),

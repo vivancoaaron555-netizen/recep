@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import {
   Phone, MessageCircle, Calendar, Clock, Zap, Shield,
@@ -46,10 +47,10 @@ function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/login" className="btn-ghost text-sm">Iniciar Sesión</Link>
-          <Link href="/register" className="btn-primary text-sm">
+          <button onClick={() => signIn('google')} className="btn-ghost text-sm">Iniciar Sesión</button>
+          <button onClick={() => signIn('google', { callbackUrl: '/onboarding' })} className="btn-primary text-sm">
             Comenzar Gratis <ChevronRight className="w-4 h-4" />
-          </Link>
+          </button>
         </div>
 
         <button className="md:hidden btn-ghost p-2" onClick={() => setMobileOpen(!mobileOpen)}>
@@ -71,8 +72,8 @@ function Navbar() {
             </a>
           ))}
           <div className="pt-2 space-y-2">
-            <Link href="/login" className="btn-secondary w-full justify-center">Iniciar Sesión</Link>
-            <Link href="/register" className="btn-primary w-full justify-center">Comenzar Gratis</Link>
+            <button onClick={() => signIn('google')} className="btn-secondary w-full justify-center">Iniciar Sesión</button>
+            <button onClick={() => signIn('google', { callbackUrl: '/onboarding' })} className="btn-primary w-full justify-center">Comenzar Gratis</button>
           </div>
         </div>
       )}
@@ -120,10 +121,10 @@ function Hero() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <Link href="/register" className="btn-primary btn-lg shadow-glow-lg animate-pulse-glow">
+            <button onClick={() => signIn('google', { callbackUrl: '/onboarding' })} className="btn-primary btn-lg shadow-glow-lg animate-pulse-glow">
               Comenzar 14 días gratis
               <ArrowRight className="w-5 h-5" />
-            </Link>
+            </button>
             <a href="#demo" className="btn-outline btn-lg">
               Ver demostración
               <Phone className="w-5 h-5" />
@@ -456,12 +457,12 @@ function Pricing() {
                 </div>
               </div>
 
-              <Link
-                href={`/register?plan=${plan.id}`}
+              <button
+                onClick={() => signIn('google', { callbackUrl: `/onboarding?plan=${plan.id}` })}
                 className={`${plan.id === 'pro' ? 'btn-primary' : 'btn-outline'} w-full justify-center mb-6`}
               >
                 Comenzar gratis
-              </Link>
+              </button>
 
               <ul className="space-y-3">
                 {plan.features.map((feature) => (
@@ -569,13 +570,13 @@ function CTASection() {
             Únete a cientos de negocios que ya automatizan su atención al cliente con Recept.ai.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/register" className="btn-primary btn-lg shadow-glow-lg">
+            <button onClick={() => signIn('google', { callbackUrl: '/onboarding' })} className="btn-primary btn-lg shadow-glow-lg">
               Crear cuenta gratis
               <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link href="/login" className="btn-secondary btn-lg">
+            </button>
+            <button onClick={() => signIn('google')} className="btn-secondary btn-lg">
               Ya tengo cuenta
-            </Link>
+            </button>
           </div>
           <p className="text-sm text-muted-foreground mt-6">
             Sin tarjeta de crédito · Cancela cuando quieras · Soporte en español

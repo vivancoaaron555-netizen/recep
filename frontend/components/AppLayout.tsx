@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -9,8 +10,7 @@ import {
   LogOut, Menu, X, Shield, Bell, ChevronDown,
   Building2, User
 } from 'lucide-react';
-import { getToken, getUser, clearAuth } from '@/lib/auth';
-import { api } from '@/lib/api';
+import { api, setApiToken } from '@/lib/api';
 import { toast } from 'sonner';
 
 const NAV_ITEMS = [
@@ -27,34 +27,34 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [company, setCompany] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
 
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
+    if (status === 'loading') return;
+    if (!session?.backendToken) {
       router.push('/login');
       return;
     }
-    const userData = getUser();
-    setUser(userData);
+    setApiToken(session.backendToken);
+    if (session.user) setUser(session.user);
+    if (session.company) setCompany(session.company);
 
     api.auth.me().then(({ user: u, company: c, subscription: s }) => {
       setUser(u);
       setCompany(c);
       setSubscription(s);
     }).catch(() => {
-      clearAuth();
       router.push('/login');
     });
-  }, [router]);
+  }, [session, status, router]);
 
   const handleLogout = () => {
-    clearAuth();
+    signOut({ callbackUrl: '/login' });
     toast.success('Sesión cerrada');
-    router.push('/login');
   };
 
   const SidebarContent = () => (

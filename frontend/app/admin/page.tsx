@@ -9,8 +9,8 @@ import {
   CheckCircle, XCircle, Clock, Globe, Activity
 } from 'lucide-react';
 import { AppLayout } from '@/components/AppLayout';
-import { api } from '@/lib/api';
-import { getUser } from '@/lib/auth';
+import { api, setApiToken } from '@/lib/api';
+import { useSession } from 'next-auth/react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -40,13 +40,15 @@ export default function AdminPage() {
   const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'companies'>('overview');
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    const user = getUser();
-    if (!user || user.role !== 'admin') {
+    if (status === 'loading') return;
+    if (!session?.user || session.user.role !== 'admin') {
       router.push('/dashboard');
     }
-  }, [router]);
+    if (session?.backendToken) setApiToken(session.backendToken);
+  }, [session, status, router]);
 
   const loadData = useCallback(async () => {
     setLoading(true);

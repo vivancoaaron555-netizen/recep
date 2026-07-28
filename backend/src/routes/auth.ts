@@ -20,6 +20,89 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+const googleSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1),
+  avatar: z.string().optional(),
+});
+
+// ─── POST /api/auth/google ──────────────────────────────────────────────────
+router.post('/google', async (req: Request, res: Response) => {
+  try {
+    const body = googleSchema.parse(req.body);
+
+    // Upsert user by email
+    const { data: existing } = await supabase
+      .from('users')
+      .select('id, email, name, role')
+      .eq('email', body.email)
+      .single();
+
+    let user: { id: string; email: string; name: string; role: string; created_at?: string } | null = null;
+    if (existing) {
+      const { data: updated } = await supabase
+        .from('users')
+        .update({ name: body.name })
+        .eq('id', existing.id)
+        .select('id, email, name, role, created_at')
+        .single();
+      user = updated;
+    } else {
+      const { data: created, error } = await supabase
+        .from('users')
+        .insert({
+          name: body.name,
+          email: body.email,
+          role: body.email === process.env.ADMIN_EMAIL ? 'admin' : 'owner',
+        })
+        .select('id, email, name, role, created_at')
+        .single();
+
+      if (error || !created) {
+        console.error('[google] Supabase error:', error);
+        return res.status(500).json({ error: 'Failed to create user' });
+      }
+
+      await supabase.from('subscriptions').insert({
+        user_id: created.id,
+        plan: 'basic',
+        status: 'trialing',
+      });
+
+      user = created;
+    }
+
+    if (!user) {
+      return res.status(500).json({ error: 'Failed to find or create user' });
+    }
+
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: '7d' }
+    );
+
+    // Get company
+    const { data: company } = await supabase
+      .from('companies')
+      .select('id, name, onboarding_completed')
+      .eq('user_id', user.id)
+      .single();
+
+    return res.json({
+      token,
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+      company: company || null,
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation error', details: err.errors });
+    }
+    console.error('[google] Error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // ─── POST /api/auth/register ─────────────────────────────────────────────────
 router.post('/register', async (req: Request, res: Response) => {
   try {

@@ -8,8 +8,8 @@ import {
   ChevronRight, ChevronLeft, Loader2, Plus, X,
   Phone, MessageCircle, Globe, Volume2
 } from 'lucide-react';
-import { api } from '@/lib/api';
-import { getToken } from '@/lib/auth';
+import { api, setApiToken } from '@/lib/api';
+import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 
@@ -536,11 +536,14 @@ function Step4({ router }: { router: ReturnType<typeof useRouter> }) {
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function OnboardingPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [currentStep, setCurrentStep] = useState(1);
 
   useEffect(() => {
-    if (!getToken()) router.push('/login');
-  }, [router]);
+    if (status === 'loading') return;
+    if (!session?.backendToken) { router.push('/login'); return; }
+    setApiToken(session.backendToken);
+  }, [session, status, router]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
