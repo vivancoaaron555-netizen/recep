@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { signIn, useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import {
   Phone, MessageCircle, Calendar, Clock, Zap, Shield,
@@ -14,8 +14,6 @@ import {
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { data: session } = useSession();
-  const isAuth = !!session?.backendToken;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -49,18 +47,10 @@ function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          {isAuth ? (
-            <Link href="/dashboard" className="btn-primary text-sm">
-              Ir al Dashboard <ChevronRight className="w-4 h-4" />
-            </Link>
-          ) : (
-            <>
-              <button onClick={() => signIn('google')} className="btn-ghost text-sm">Iniciar Sesión</button>
-              <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary text-sm">
-                Comenzar Gratis <ChevronRight className="w-4 h-4" />
-              </button>
-            </>
-          )}
+          <button onClick={() => signIn('google')} className="btn-ghost text-sm">Iniciar Sesión</button>
+          <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary text-sm">
+            Comenzar Gratis <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
 
         <button className="md:hidden btn-ghost p-2" onClick={() => setMobileOpen(!mobileOpen)}>
@@ -82,16 +72,8 @@ function Navbar() {
             </a>
           ))}
           <div className="pt-2 space-y-2">
-            {isAuth ? (
-              <Link href="/dashboard" className="btn-primary w-full justify-center" onClick={() => setMobileOpen(false)}>
-                Ir al Dashboard
-              </Link>
-            ) : (
-              <>
-                <button onClick={() => signIn('google')} className="btn-secondary w-full justify-center">Iniciar Sesión</button>
-                <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary w-full justify-center">Comenzar Gratis</button>
-              </>
-            )}
+            <button onClick={() => signIn('google')} className="btn-secondary w-full justify-center">Iniciar Sesión</button>
+            <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary w-full justify-center">Comenzar Gratis</button>
           </div>
         </div>
       )}
@@ -101,8 +83,6 @@ function Navbar() {
 
 // ─── Hero Section ────────────────────────────────────────────────────────────
 function Hero() {
-  const { data: session } = useSession();
-  const isAuth = !!session?.backendToken;
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
       {/* Background glow */}
@@ -141,17 +121,10 @@ function Hero() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            {isAuth ? (
-              <Link href="/dashboard" className="btn-primary btn-lg shadow-glow-lg animate-pulse-glow">
-                Ir al Dashboard
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            ) : (
-              <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg animate-pulse-glow">
-                Comenzar 14 días gratis
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            )}
+            <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg animate-pulse-glow">
+              Comenzar 14 días gratis
+              <ArrowRight className="w-5 h-5" />
+            </button>
             <a href="#demo" className="btn-outline btn-lg">
               Ver demostración
               <Phone className="w-5 h-5" />
@@ -577,8 +550,6 @@ function Testimonials() {
 
 // ─── CTA Final ────────────────────────────────────────────────────────────────
 function CTASection() {
-  const { data: session } = useSession();
-  const isAuth = !!session?.backendToken;
   return (
     <section className="section bg-background relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
@@ -599,22 +570,13 @@ function CTASection() {
             Únete a cientos de negocios que ya automatizan su atención al cliente con Recept.ai.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {isAuth ? (
-              <Link href="/dashboard" className="btn-primary btn-lg shadow-glow-lg">
-                Ir al Dashboard
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            ) : (
-              <>
-                <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg">
-                  Crear cuenta gratis
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-                <button onClick={() => signIn('google')} className="btn-secondary btn-lg">
-                  Ya tengo cuenta
-                </button>
-              </>
-            )}
+            <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg">
+              Crear cuenta gratis
+              <ArrowRight className="w-5 h-5" />
+            </button>
+            <button onClick={() => signIn('google')} className="btn-secondary btn-lg">
+              Ya tengo cuenta
+            </button>
           </div>
           <p className="text-sm text-muted-foreground mt-6">
             Sin tarjeta de crédito · Cancela cuando quieras · Soporte en español
