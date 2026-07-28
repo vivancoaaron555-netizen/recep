@@ -120,15 +120,18 @@ function Hero() {
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg animate-pulse-glow">
-              Comenzar 14 días gratis
-              <ArrowRight className="w-5 h-5" />
-            </button>
-            <a href="#demo" className="btn-outline btn-lg">
-              Ver demostración
-              <Phone className="w-5 h-5" />
-            </a>
+          <div className="flex flex-col items-center gap-4 mb-16">
+            <div className="relative">
+              <div className="absolute -top-8 -right-8 rotate-12">
+                <div className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-glow whitespace-nowrap">
+                  ← 7 días gratis
+                </div>
+              </div>
+              <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg animate-pulse-glow text-lg px-10">
+                Regístrate gratis
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Social proof */}
@@ -569,14 +572,18 @@ function CTASection() {
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
             Únete a cientos de negocios que ya automatizan su atención al cliente con Recept.ai.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg">
-              Crear cuenta gratis
-              <ArrowRight className="w-5 h-5" />
-            </button>
-            <button onClick={() => signIn('google')} className="btn-secondary btn-lg">
-              Ya tengo cuenta
-            </button>
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="absolute -top-8 -right-8 rotate-12">
+                <div className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-glow whitespace-nowrap">
+                  ← 7 días gratis
+                </div>
+              </div>
+              <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg">
+                Regístrate gratis
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
           <p className="text-sm text-muted-foreground mt-6">
             Sin tarjeta de crédito · Cancela cuando quieras · Soporte en español
