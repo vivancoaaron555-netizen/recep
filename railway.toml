@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd backend && npm install && ./node_modules/.bin/tsc && cd ../frontend && npm install && npm run build"
+buildCommand = "cd backend && npm install && ./node_modules/.bin/tsc"
 
 [deploy]
-startCommand = "cd backend && PORT=3001 node dist/index.js & cd frontend && npm start"
+startCommand = "cd backend && node dist/index.js"
