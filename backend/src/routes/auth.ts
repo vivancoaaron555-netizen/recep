@@ -53,6 +53,7 @@ router.post('/google', async (req: Request, res: Response) => {
         .insert({
           name: body.name,
           email: body.email,
+          password_hash: '',
           role: body.email === process.env.ADMIN_EMAIL ? 'admin' : 'owner',
         })
         .select('id, email, name, role, created_at')
