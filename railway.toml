@@ -2,8 +2,5 @@
 builder = "nixpacks"
 buildCommand = "cd backend && npm install && ./node_modules/.bin/tsc && cd ../frontend && npm install && npm run build"
 
-[environment]
-NODE_VERSION = "22"
-
 [deploy]
 startCommand = "cd backend && node dist/index.js"
