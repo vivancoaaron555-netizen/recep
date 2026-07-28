@@ -1,17 +1,16 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Bot, Building2, User, Radio, PartyPopper,
+  Bot, Building2, User, Radio, Check,
   ChevronRight, ChevronLeft, Loader2, Plus, X,
-  Phone, MessageCircle, Globe, Volume2
+  Phone, MessageCircle, Globe, Volume2, CreditCard
 } from 'lucide-react';
 import { api, setApiToken } from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
-import confetti from 'canvas-confetti';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 const SECTORS = [
@@ -79,7 +78,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
           { label: 'Empresa', icon: Building2 },
           { label: 'Recepcionista', icon: User },
           { label: 'Canales', icon: Radio },
-          { label: '¡Listo!', icon: PartyPopper },
+          { label: 'Pago', icon: CreditCard },
         ].map((s, i) => (
           <div key={s.label} className={`flex flex-col items-center gap-1 ${i + 1 <= step ? 'text-primary' : 'text-muted-foreground'}`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors ${
@@ -473,61 +472,50 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
   );
 }
 
-// ─── Step 4: Done! ────────────────────────────────────────────────────────────
+// ─── Step 4: Payment ──────────────────────────────────────────────────────────
 function Step4({ router }: { router: ReturnType<typeof useRouter> }) {
-  useEffect(() => {
-    // Trigger confetti
-    const fire = () => {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#2563eb', '#6366f1', '#22c55e', '#f59e0b'],
-      });
-    };
-    fire();
-    const t1 = setTimeout(fire, 500);
-    const t2 = setTimeout(fire, 1000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
+  const [loading, setLoading] = useState(false);
+
+  const handlePayment = async () => {
+    setLoading(true);
+    try {
+      const { url } = await api.billing.createCheckout('basic');
+      window.location.href = url;
+    } catch (err: any) {
+      toast.error(err.message || 'Error al iniciar pago');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="text-center space-y-6 py-8">
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', duration: 0.6 }}
-        className="w-24 h-24 rounded-full bg-success/15 border-2 border-success/30 flex items-center justify-center mx-auto"
-      >
-        <PartyPopper className="w-12 h-12 text-success" />
-      </motion.div>
+    <div className="space-y-6 py-4">
+      <div className="text-center">
+        <div className="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center mx-auto mb-4">
+          <CreditCard className="w-8 h-8 text-primary" />
+        </div>
+        <h2 className="text-2xl font-bold mb-1">Último paso — configura tu pago</h2>
+        <p className="text-muted-foreground">No te cobraremos hoy, solo guardamos tu tarjeta</p>
+      </div>
 
-      <div>
-        <h2 className="text-3xl font-black mb-2">¡Tu recepcionista está lista!</h2>
-        <p className="text-muted-foreground max-w-sm mx-auto">
-          La IA ya está configurada y lista para atender llamadas y WhatsApp de tu negocio 24/7.
+      <div className="card bg-muted/50 border-border/50 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold">Plan Basic</span>
+          <span className="text-lg font-bold">$49/mes</span>
+        </div>
+        <ul className="space-y-1.5 text-sm text-muted-foreground">
+          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Asistente IA para llamadas y WhatsApp</li>
+          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Atención al cliente 24/7 automatizada</li>
+          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Panel de control con estadísticas</li>
+          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> 7 días de prueba gratuita</li>
+        </ul>
+        <p className="text-xs text-muted-foreground border-t border-border pt-3">
+          Cancela cuando quieras durante los 7 días de prueba. No habrá cargos hasta que termine el periodo.
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto">
-        {[
-          { label: 'Llamadas', icon: Phone, color: 'text-primary', bg: 'bg-primary/10' },
-          { label: 'WhatsApp', icon: MessageCircle, color: 'text-green-500', bg: 'bg-green-500/10' },
-          { label: 'Dashboard', icon: Bot, color: 'text-accent', bg: 'bg-accent/10' },
-        ].map((item) => (
-          <div key={item.label} className={`rounded-xl ${item.bg} border border-border p-4 text-center`}>
-            <item.icon className={`w-6 h-6 ${item.color} mx-auto mb-2`} />
-            <span className="text-xs font-medium">{item.label}</span>
-          </div>
-        ))}
-      </div>
-
-      <button
-        onClick={() => router.push('/dashboard')}
-        className="btn-primary btn-lg mx-auto shadow-glow-lg"
-      >
-        Ir a mi Dashboard
-        <ChevronRight className="w-5 h-5" />
+      <button onClick={handlePayment} disabled={loading} className="btn-primary w-full justify-center">
+        {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo a pago...</> : <>Configurar método de pago <ChevronRight className="w-4 h-4" /></>}
       </button>
     </div>
   );

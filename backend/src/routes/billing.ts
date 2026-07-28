@@ -68,8 +68,8 @@ router.post('/create-checkout', authMiddleware, async (req: AuthRequest, res: Re
           quantity: 1,
         },
       ],
-      success_url: `${process.env.FRONTEND_URL}/dashboard?success=true&plan=${plan}`,
-      cancel_url: `${process.env.FRONTEND_URL}/register?canceled=true`,
+      success_url: `${process.env.FRONTEND_URL}/dashboard?welcome=true&plan=${plan}`,
+      cancel_url: `${process.env.FRONTEND_URL}/trial?canceled=true`,
       metadata: {
         userId: req.user!.userId,
         plan,
@@ -79,7 +79,7 @@ router.post('/create-checkout', authMiddleware, async (req: AuthRequest, res: Re
           userId: req.user!.userId,
           plan,
         },
-        trial_period_days: 14,
+        trial_period_days: 7,
       },
     });
 
