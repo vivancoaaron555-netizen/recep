@@ -69,7 +69,7 @@ export default function TrialPage() {
           <div className="text-center mb-6">
             <span className="text-5xl font-black gradient-text">$0</span>
             <span className="text-muted-foreground ml-2">por 7 días</span>
-            <p className="text-sm text-muted-foreground mt-1">Luego $49/mes — cancela en cualquier momento</p>
+            <p className="text-sm text-muted-foreground mt-1">Luego $99/mes — cancela en cualquier momento</p>
           </div>
 
           <ul className="space-y-3 mb-8">

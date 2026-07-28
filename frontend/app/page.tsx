@@ -362,7 +362,7 @@ const plans = [
   {
     id: 'basic',
     name: 'Basic',
-    price: 49,
+    price: 99,
     description: 'Ideal para negocios pequeños',
     color: 'border-border',
     badge: null,
@@ -378,7 +378,7 @@ const plans = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 99,
+    price: 199,
     description: 'Para negocios en crecimiento',
     color: 'border-primary',
     badge: 'Más popular',
@@ -396,7 +396,7 @@ const plans = [
   {
     id: 'business',
     name: 'Business',
-    price: 199,
+    price: 349,
     description: 'Para empresas',
     color: 'border-accent/50',
     badge: 'Empresas',
