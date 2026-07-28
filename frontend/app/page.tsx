@@ -56,7 +56,7 @@ function Navbar() {
           ) : (
             <>
               <button onClick={() => signIn('google')} className="btn-ghost text-sm">Iniciar Sesión</button>
-              <button onClick={() => signIn('google', { callbackUrl: '/onboarding' })} className="btn-primary text-sm">
+              <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary text-sm">
                 Comenzar Gratis <ChevronRight className="w-4 h-4" />
               </button>
             </>
@@ -89,7 +89,7 @@ function Navbar() {
             ) : (
               <>
                 <button onClick={() => signIn('google')} className="btn-secondary w-full justify-center">Iniciar Sesión</button>
-                <button onClick={() => signIn('google', { callbackUrl: '/onboarding' })} className="btn-primary w-full justify-center">Comenzar Gratis</button>
+                <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary w-full justify-center">Comenzar Gratis</button>
               </>
             )}
           </div>
@@ -147,7 +147,7 @@ function Hero() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
             ) : (
-              <button onClick={() => signIn('google', { callbackUrl: '/onboarding' })} className="btn-primary btn-lg shadow-glow-lg animate-pulse-glow">
+              <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg animate-pulse-glow">
                 Comenzar 14 días gratis
                 <ArrowRight className="w-5 h-5" />
               </button>
@@ -485,7 +485,7 @@ function Pricing() {
               </div>
 
               <button
-                onClick={() => signIn('google', { callbackUrl: `/onboarding?plan=${plan.id}` })}
+                onClick={() => signIn('google', { callbackUrl: `/trial?plan=${plan.id}` })}
                 className={`${plan.id === 'pro' ? 'btn-primary' : 'btn-outline'} w-full justify-center mb-6`}
               >
                 Comenzar gratis
@@ -606,7 +606,7 @@ function CTASection() {
               </Link>
             ) : (
               <>
-                <button onClick={() => signIn('google', { callbackUrl: '/onboarding' })} className="btn-primary btn-lg shadow-glow-lg">
+                <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg">
                   Crear cuenta gratis
                   <ArrowRight className="w-5 h-5" />
                 </button>

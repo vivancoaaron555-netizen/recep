@@ -65,7 +65,7 @@ export default function RegisterPage() {
           </ul>
 
           <button
-            onClick={() => signIn('google', { callbackUrl: '/onboarding' })}
+            onClick={() => signIn('google', { callbackUrl: '/trial' })}
             className="btn-primary w-full justify-center gap-3"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">

@@ -47,6 +47,9 @@ export function AppLayout({ children }: AppLayoutProps) {
       setUser(u);
       setCompany(c);
       setSubscription(s);
+      if (c && !c.onboarding_completed) {
+        router.push('/trial');
+      }
     }).catch(() => {
       router.push('/login');
     });
