@@ -234,7 +234,7 @@ function BillingTab({ subscription }: { subscription: any }) {
   const PLAN_INFO: Record<string, { name: string; price: string; features: string[] }> = {
     basic: { name: 'Basic', price: '$49/mes', features: ['100 llamadas/mes', '500 WhatsApp', '1 número'] },
     pro: { name: 'Pro', price: '$99/mes', features: ['500 llamadas/mes', 'WhatsApp ilimitado', '3 números'] },
-    clinic: { name: 'Clinic', price: '$199/mes', features: ['Llamadas ilimitadas', 'WhatsApp ilimitado', '10 números'] },
+    business: { name: 'Business', price: '$199/mes', features: ['Llamadas ilimitadas', 'WhatsApp ilimitado', '10 números'] },
   };
 
   const planInfo = subscription?.plan ? PLAN_INFO[subscription.plan] : null;

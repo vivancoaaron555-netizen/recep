@@ -394,10 +394,10 @@ const plans = [
     ],
   },
   {
-    id: 'clinic',
-    name: 'Clinic',
+    id: 'business',
+    name: 'Business',
     price: 199,
-    description: 'Para clínicas y consultorios',
+    description: 'Para empresas',
     color: 'border-accent/50',
     badge: 'Empresas',
     features: [

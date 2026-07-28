@@ -10,13 +10,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const PLAN_PRICES: Record<string, string> = {
   basic: process.env.STRIPE_PRICE_BASIC || '',
   pro: process.env.STRIPE_PRICE_PRO || '',
-  clinic: process.env.STRIPE_PRICE_CLINIC || '',
+  business: process.env.STRIPE_PRICE_BUSINESS || '',
 };
 
 const PLAN_NAMES: Record<string, string> = {
   basic: 'Basic',
   pro: 'Pro',
-  clinic: 'Clinic',
+  business: 'Business',
 };
 
 // ─── POST /api/billing/create-checkout ───────────────────────────────────────

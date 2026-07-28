@@ -149,7 +149,7 @@ export default function AdminPage() {
                   {[
                     { plan: 'basic', label: 'Basic', price: '$49', color: 'text-primary' },
                     { plan: 'pro', label: 'Pro', price: '$99', color: 'text-accent' },
-                    { plan: 'clinic', label: 'Clinic', price: '$199', color: 'text-warning' },
+                    { plan: 'business', label: 'Business', price: '$199', color: 'text-warning' },
                   ].map((p) => (
                     <div key={p.plan} className="text-center p-4 rounded-xl bg-muted/30 border border-border">
                       <p className={`text-3xl font-black ${p.color}`}>{stats.planCounts[p.plan] || 0}</p>
