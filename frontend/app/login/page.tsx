@@ -1,11 +1,28 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
+import { useEffect } from 'react';
+import { signIn, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Bot } from 'lucide-react';
+import { Bot, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (session?.backendToken) router.push('/dashboard');
+  }, [session, status, router]);
+
+  if (status === 'loading' || session?.backendToken) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="fixed inset-0 pointer-events-none">
