@@ -4,6 +4,7 @@ backend/node_modules/
 frontend/node_modules/
 
 # Builds
+*.tsbuildinfo
 dist/
 backend/dist/
 frontend/.next/
