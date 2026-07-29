@@ -3,6 +3,11 @@
 -- Run this in your Supabase SQL editor
 -- =============================================
 
+-- ⚡ MIGRATION (July 2026): Add phone verification columns
+-- Run this if you already have the companies table:
+-- ALTER TABLE companies ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN NOT NULL DEFAULT FALSE;
+-- ALTER TABLE companies ADD COLUMN IF NOT EXISTS phone_verification_code TEXT;
+
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
