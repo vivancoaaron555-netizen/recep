@@ -63,7 +63,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
             name: 'Sofia',
             model: {
               provider: 'groq',
-              model: 'llama-3.1-70b-versatile',
+              model: 'llama-3.3-70b-versatile',
               systemPrompt: 'Eres Sofia, una recepcionista virtual amable y profesional. Ayuda al cliente de forma breve y cordial.',
               maxTokens: 200,
             },
