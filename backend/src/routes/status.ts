@@ -43,6 +43,13 @@ router.get('/', async (_req: Request, res: Response) => {
       });
       return { ok: res.ok };
     }),
+    pingService('elevenlabs', async () => {
+      const res = await fetch('https://api.elevenlabs.io/v1/voices', {
+        headers: { 'xi-api-key': process.env.ELEVENLABS_API_KEY || '' },
+      });
+      const data = await res.json() as any;
+      return { ok: res.ok, voices: data?.voices?.length || 0 };
+    }),
   ]);
 
   res.json({ services: checks, timestamp: new Date().toISOString() });
