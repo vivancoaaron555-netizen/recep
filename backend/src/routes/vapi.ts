@@ -79,14 +79,20 @@ router.post('/webhook', async (req: Request, res: Response) => {
             model: {
               provider: 'groq',
               model: 'llama-3.3-70b-versatile',
-              systemPrompt: 'Eres Sofia, una recepcionista virtual amable y profesional. Ayuda al cliente de forma breve y cordial.',
+              systemPrompt: 'Eres Sofia, una recepcionista virtual amable y profesional. IMPORTANTE: Siempre respondes en español, sin importar el idioma en que te hablen. Saluda cordialmente, pregunta el nombre del cliente y en qué puedes ayudarle. Las respuestas deben ser breves y naturales.',
               maxTokens: 200,
+              temperature: 0.7,
             },
             voice: {
               provider: 'elevenlabs',
               voiceId: 'EXAVITQu4vr4xnSDxMaL',
             },
             language: 'es',
+            silenceTimeoutSeconds: 10,
+            maxDurationSeconds: 300,
+            backgroundSound: 'office',
+            backgroundDenoisingEnabled: true,
+            endCallPhrases: ['adiós', 'gracias', 'que tengas buen día', 'hasta luego'],
           },
         });
       }
