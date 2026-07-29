@@ -6,7 +6,8 @@ import { motion } from 'framer-motion';
 import {
   Shield, Building2, Users, Phone, Calendar,
   TrendingUp, DollarSign, BarChart3, RefreshCw,
-  CheckCircle, XCircle, Clock, Globe, Activity
+  CheckCircle, XCircle, Clock, Globe, Activity,
+  UserPlus, ChevronRight, Bot, MessageCircle, CreditCard
 } from 'lucide-react';
 import { AppLayout } from '@/components/AppLayout';
 import { api, setApiToken } from '@/lib/api';
@@ -34,12 +35,34 @@ function AdminStatCard({ title, value, icon: Icon, color, subtitle }: {
   );
 }
 
+const STAGE_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string }> = {
+  registered: { label: 'Registrados', icon: UserPlus, color: 'text-muted-foreground' },
+  company: { label: 'Empresa creada', icon: Building2, color: 'text-blue-500' },
+  assistant: { label: 'Recepcionista lista', icon: Bot, color: 'text-primary' },
+  phone_verified: { label: 'Teléfono verificado', icon: Phone, color: 'text-green-500' },
+  onboarding_complete: { label: 'Onboarding completo', icon: CheckCircle, color: 'text-success' },
+  trialing: { label: 'En prueba gratis', icon: Clock, color: 'text-warning' },
+  active: { label: 'Suscripción activa', icon: CreditCard, color: 'text-accent' },
+};
+
+function StageBadge({ stage }: { stage: string }) {
+  const cfg = STAGE_CONFIG[stage] || STAGE_CONFIG.registered;
+  const Icon = cfg.icon;
+  return (
+    <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border ${cfg.color} bg-muted/50`}>
+      <Icon className="w-3 h-3" />
+      {cfg.label}
+    </span>
+  );
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [stats, setStats] = useState<any>(null);
   const [companies, setCompanies] = useState<any[]>([]);
+  const [pipeline, setPipeline] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'companies'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'companies' | 'pipeline'>('overview');
   const { data: session, status } = useSession();
 
   useEffect(() => {
@@ -53,12 +76,14 @@ export default function AdminPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [statsData, companiesData] = await Promise.all([
+      const [statsData, companiesData, pipelineData] = await Promise.all([
         api.admin.stats(),
         api.admin.companies(),
+        api.admin.pipeline(),
       ]);
       setStats(statsData);
       setCompanies(companiesData.companies || []);
+      setPipeline(pipelineData.stages || []);
     } catch (err) {
       console.error('Admin load error:', err);
     } finally {
@@ -67,6 +92,8 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  const maxPipelineCount = Math.max(...pipeline.map(s => s.count), 1);
 
   return (
     <AppLayout>
@@ -92,6 +119,7 @@ export default function AdminPage() {
         <div className="flex gap-2 border-b border-border">
           {[
             { id: 'overview', label: 'Resumen', icon: BarChart3 },
+            { id: 'pipeline', label: 'Etapas', icon: TrendingUp },
             { id: 'companies', label: 'Empresas', icon: Building2 },
           ].map((tab) => (
             <button
@@ -163,6 +191,43 @@ export default function AdminPage() {
           </motion.div>
         )}
 
+        {activeTab === 'pipeline' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card">
+            <h2 className="font-semibold mb-6">Embudo de activación</h2>
+            <div className="space-y-2">
+              {pipeline.map((stage, i) => {
+                const cfg = STAGE_CONFIG[stage.id] || STAGE_CONFIG.registered;
+                const Icon = cfg.icon;
+                const pct = maxPipelineCount > 0 ? Math.round((stage.count / maxPipelineCount) * 100) : 0;
+                return (
+                  <div key={stage.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/30 transition-colors">
+                    <div className="w-36 text-right flex-shrink-0">
+                      <p className="text-2xl font-black">{stage.count}</p>
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Icon className={`w-4 h-4 ${cfg.color}`} />
+                        <span className="text-sm font-medium">{cfg.label}</span>
+                      </div>
+                      <div className="h-3 rounded-full bg-muted overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ duration: 0.8, delay: i * 0.1 }}
+                          className={`h-full rounded-full ${stage.count === maxPipelineCount ? 'bg-primary' : 'bg-primary/40'}`}
+                        />
+                      </div>
+                    </div>
+                    <div className="w-16 text-right">
+                      <span className="text-xs text-muted-foreground">{pct}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+
         {activeTab === 'companies' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="card">
@@ -173,7 +238,7 @@ export default function AdminPage() {
                       <th className="text-left px-4 py-3">Empresa</th>
                       <th className="text-left px-4 py-3 hidden sm:table-cell">Sector</th>
                       <th className="text-left px-4 py-3">Plan</th>
-                      <th className="text-left px-4 py-3">Estado</th>
+                      <th className="text-left px-4 py-3">Etapa</th>
                       <th className="text-left px-4 py-3 hidden md:table-cell">Llamadas</th>
                       <th className="text-left px-4 py-3 hidden lg:table-cell">Registro</th>
                     </tr>
@@ -216,13 +281,7 @@ export default function AdminPage() {
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            {company.subscription?.status === 'active' ? (
-                              <span className="badge-success text-xs"><CheckCircle className="w-3 h-3" /> Activo</span>
-                            ) : company.subscription?.status === 'trialing' ? (
-                              <span className="badge-warning text-xs"><Clock className="w-3 h-3" /> Trial</span>
-                            ) : (
-                              <span className="badge-error text-xs"><XCircle className="w-3 h-3" /> Inactivo</span>
-                            )}
+                            <StageBadge stage={company.stage} />
                           </td>
                           <td className="px-4 py-3 text-sm text-muted-foreground hidden md:table-cell">
                             {company.callCount || 0}

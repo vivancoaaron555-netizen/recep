@@ -109,5 +109,6 @@ export const api = {
   admin: {
     companies: () => request<any>('/api/admin/companies'),
     stats: () => request<any>('/api/admin/stats'),
+    pipeline: () => request<{ stages: any[] }>('/api/admin/pipeline'),
   },
 };
