@@ -4,8 +4,13 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { supabase } from '../utils/supabase';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { registerLimiter, loginLimiter, apiLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
+
+// Rate limiters
+router.post('/register', registerLimiter);
+router.post('/login', loginLimiter);
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
 const registerSchema = z.object({

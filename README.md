@@ -50,15 +50,35 @@ Rellena **todas** las variables en ambos archivos.
 
 1. Ve a [stripe.com](https://stripe.com) → Dashboard
 2. Crear 3 productos con sus precios:
-   - **Basic**: $49/mes → copia el Price ID → `STRIPE_PRICE_BASIC`
-   - **Pro**: $99/mes → copia el Price ID → `STRIPE_PRICE_PRO`
-   - **Clinic**: $199/mes → copia el Price ID → `STRIPE_PRICE_CLINIC`
+   - **Basic**: $99/mes → copia el Price ID → `STRIPE_PRICE_BASIC`
+   - **Pro**: $199/mes → copia el Price ID → `STRIPE_PRICE_PRO`
+   - **Business**: $349/mes → copia el Price ID → `STRIPE_PRICE_BUSINESS`
 3. Copiar la clave secreta → `STRIPE_SECRET_KEY`
 4. Para el webhook local, usa Stripe CLI:
    ```bash
    stripe listen --forward-to localhost:3001/api/billing/webhook
    ```
 5. El webhook secret que aparece → `STRIPE_WEBHOOK_SECRET`
+
+#### 🔴 Cambiar Stripe de Test a Live
+
+Cuando estés listo para cobros reales:
+
+1. Ve a Stripe Dashboard → Activar tu cuenta (si no lo has hecho, necesitarás datos bancarios, RFC, etc.)
+2. Cambia a **modo Live** con el toggle en la esquina superior derecha
+3. Copia las claves **Live** (no las de prueba):
+   - `STRIPE_SECRET_KEY` = `sk_live_...`
+   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` = `pk_live_...`
+4. Crea los **mismos 3 productos en modo Live** y copia los nuevos Price IDs (los de test terminan en `_test`, los de live no)
+5. Ve a Developers → Webhooks → **Add endpoint** con la URL real de Railway:
+   - URL: `https://tu-backend.railway.app/api/billing/webhook`
+   - Eventos: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`
+   - Copia el **Signing Secret** (empieza con `whsec_...`) → `STRIPE_WEBHOOK_SECRET`
+6. Actualiza las variables en Railway (o en tu .env) con TODOS los valores live
+7. Redeploy el backend
+
+> ⚠️ **Importante:** Siempre prueba con el modo test primero usando números de tarjeta de prueba.
+> Los Price IDs de test NO funcionan en modo live y viceversa.
 
 ### 5. Configurar Vapi.ai
 
@@ -139,6 +159,7 @@ recept-ai/
 │   │   └── utils/
 │   │       ├── supabase.ts       # Supabase client
 │   │       ├── groq.ts           # Groq client + helpers
+│   │       ├── twilio.ts         # Twilio Lookup + SMS helpers
 │   │       └── generateSystemPrompt.ts  # Dynamic AI prompt
 │   ├── package.json
 │   └── tsconfig.json
@@ -207,7 +228,7 @@ recept-ai/
 | `STRIPE_WEBHOOK_SECRET` | Secret del webhook de Stripe |
 | `STRIPE_PRICE_BASIC` | Price ID del plan Basic |
 | `STRIPE_PRICE_PRO` | Price ID del plan Pro |
-| `STRIPE_PRICE_CLINIC` | Price ID del plan Clinic |
+| `STRIPE_PRICE_BUSINESS` | Price ID del plan Business |
 | `RESEND_API_KEY` | API Key de Resend |
 | `JWT_SECRET` | Secret para firmar JWTs (mín. 32 chars) |
 | `FRONTEND_URL` | URL del frontend (para CORS) |

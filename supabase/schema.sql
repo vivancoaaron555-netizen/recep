@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS companies (
   phone       TEXT,
   website     TEXT,
   onboarding_completed BOOLEAN NOT NULL DEFAULT FALSE,
+  phone_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  phone_verification_code TEXT,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

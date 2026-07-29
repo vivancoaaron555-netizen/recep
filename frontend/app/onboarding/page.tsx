@@ -357,10 +357,14 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
   );
 }
 
-// ─── Step 3: Channels ─────────────────────────────────────────────────────────
+// ─── Step 3: Channels + Phone Verification ────────────────────────────────────
 function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => void }) {
   const [loading, setLoading] = useState(false);
   const [channelData, setChannelData] = useState<any>(null);
+  const [codeSent, setCodeSent] = useState(false);
+  const [code, setCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [verified, setVerified] = useState(false);
 
   const handleActivate = async () => {
     setLoading(true);
@@ -368,10 +372,31 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
       const data = await api.onboarding.completeChannels();
       setChannelData(data);
       toast.success('¡Canales activados!');
+      // Send verification code automatically
+      const result = await api.onboarding.sendCode();
+      setCodeSent(true);
+      toast.success(result.message);
     } catch (err: any) {
       toast.error(err.message || 'Error al activar canales');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVerify = async () => {
+    if (code.length !== 6) {
+      toast.error('Ingresa el código de 6 dígitos');
+      return;
+    }
+    setVerifying(true);
+    try {
+      const result = await api.onboarding.verifyCode(code);
+      setVerified(true);
+      toast.success(result.message);
+    } catch (err: any) {
+      toast.error(err.message || 'Código incorrecto');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -399,12 +424,6 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
               <p className="text-sm text-muted-foreground mt-1">
                 Se te asignará un número de teléfono dedicado con voz IA
               </p>
-              {channelData?.phoneNumber && (
-                <div className="mt-2 bg-success/10 border border-success/20 rounded-lg px-3 py-2">
-                  <span className="text-sm text-success font-mono font-bold">{channelData.phoneNumber}</span>
-                  <span className="text-xs text-muted-foreground ml-2">Tu número asignado</span>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -425,11 +444,6 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
               <p className="text-sm text-muted-foreground mt-1">
                 Respuesta automática a mensajes de WhatsApp 24/7
               </p>
-              {channelData?.whatsappInstructions && (
-                <div className="mt-2 bg-card border border-border rounded-lg px-3 py-2">
-                  <p className="text-xs text-muted-foreground">{channelData.whatsappInstructions}</p>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -453,16 +467,56 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
         </div>
       </div>
 
+      {/* SMS Verification */}
+      {codeSent && !verified && (
+        <div className="card border-primary/30 bg-primary/5">
+          <div className="text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center mx-auto">
+              <MessageCircle className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Verifica tu número</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Enviamos un código de 6 dígitos al teléfono registrado
+              </p>
+            </div>
+            <div className="flex gap-2 max-w-xs mx-auto">
+              <input
+                className="input text-center text-lg font-mono tracking-widest"
+                placeholder="000000"
+                maxLength={6}
+                value={code}
+                onChange={e => setCode(e.target.value.replace(/\D/g, ''))}
+                autoFocus
+              />
+              <button onClick={handleVerify} disabled={verifying} className="btn-primary px-6">
+                {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verificar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {!channelData && (
         <button onClick={handleActivate} disabled={loading} className="btn-primary w-full justify-center">
           {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Activando...</> : <>Activar Canales <ChevronRight className="w-4 h-4" /></>}
         </button>
       )}
 
-      {channelData && (
+      {channelData && verified && (
         <button onClick={() => onNext(channelData)} className="btn-primary w-full justify-center">
-          ¡Continuar al resumen! <ChevronRight className="w-4 h-4" />
+          Continuar al pago <ChevronRight className="w-4 h-4" />
         </button>
+      )}
+
+      {channelData && verified && (
+        <>{/* WhatsApp instructions */}
+          {channelData?.whatsappInstructions && (
+            <div className="bg-card border border-border rounded-lg px-3 py-2 text-xs text-muted-foreground">
+              {channelData.whatsappInstructions}
+            </div>
+          )}
+        </>
       )}
 
       <button onClick={onBack} className="btn-ghost w-full justify-center text-sm">

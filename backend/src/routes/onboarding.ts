@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { supabase } from '../utils/supabase';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { generateSystemPrompt } from '../utils/generateSystemPrompt';
+import { lookupPhone, sendSMS, generateCode } from '../utils/twilio';
 
 const router = Router();
 
@@ -21,13 +22,22 @@ const companySchema = z.object({
   services: z.array(z.string()).min(1),
   address: z.string().optional(),
   faq: z.string().optional(),
-  phone: z.string().optional(),
+  phone: z.string().min(7, 'Número de teléfono inválido'),
   website: z.string().optional(),
 });
 
 router.post('/company', async (req: AuthRequest, res: Response) => {
   try {
     const body = companySchema.parse(req.body);
+
+    // Validate phone number with Twilio Lookup
+    if (body.phone) {
+      const lookup = await lookupPhone(body.phone);
+      if (!lookup.valid) {
+        return res.status(400).json({ error: 'El número de teléfono no es válido. Verifica el formato e intenta de nuevo.' });
+      }
+      body.phone = lookup.formatted || body.phone;
+    }
 
     // Check if company already exists for this user
     const { data: existing } = await supabase
@@ -145,42 +155,106 @@ router.post('/assistant', async (req: AuthRequest, res: Response) => {
 // ─── POST /api/onboarding/channels ──────────────────────────────────────────
 router.post('/channels', async (req: AuthRequest, res: Response) => {
   try {
-    // Get company for this user
-    const { data: company, error: companyError } = await supabase
+    const { data: company } = await supabase
       .from('companies')
-      .select('id')
+      .select('id, phone')
       .eq('user_id', req.user!.userId)
       .single();
 
-    if (companyError || !company) {
+    if (!company) {
       return res.status(400).json({ error: 'Company not found' });
     }
 
-    // Mark onboarding as complete
-    const { error } = await supabase
-      .from('companies')
-      .update({ onboarding_completed: true })
-      .eq('id', company.id);
-
-    if (error) {
-      return res.status(500).json({ error: 'Failed to complete onboarding' });
-    }
-
-    // Get the assigned phone number if any
-    const { data: phoneNumber } = await supabase
-      .from('phone_numbers')
-      .select('twilio_number')
-      .eq('company_id', company.id)
-      .single();
-
     return res.json({
       success: true,
-      message: 'Onboarding completed!',
-      phoneNumber: phoneNumber?.twilio_number || process.env.TWILIO_PHONE_NUMBER,
-      whatsappInstructions: `Envía "JOIN recept-ai" al número ${process.env.TWILIO_WHATSAPP_NUMBER} para activar WhatsApp`,
+      message: 'Canales activados',
+      phoneNumber: company.phone,
     });
   } catch (err) {
     console.error('[onboarding/channels] Error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── POST /api/onboarding/send-code ─────────────────────────────────────────
+router.post('/send-code', async (req: AuthRequest, res: Response) => {
+  try {
+    const { data: company } = await supabase
+      .from('companies')
+      .select('id, phone')
+      .eq('user_id', req.user!.userId)
+      .single();
+
+    if (!company || !company.phone) {
+      return res.status(400).json({ error: 'Company or phone number not found. Complete step 1 first.' });
+    }
+
+    const code = generateCode();
+
+    const { error: updateError } = await supabase
+      .from('companies')
+      .update({ phone_verification_code: code })
+      .eq('id', company.id);
+
+    if (updateError) {
+      return res.status(500).json({ error: 'Failed to save verification code' });
+    }
+
+    const sent = await sendSMS(company.phone, `Tu código de verificación de Recept.ai es: ${code}. Este código expira en 10 minutos.`);
+
+    if (!sent) {
+      return res.status(500).json({ error: 'Error al enviar el SMS. Verifica el número de teléfono.' });
+    }
+
+    return res.json({ sent: true, message: `Código enviado a ${company.phone.replace(/\d(?=\d{4})/g, '*')}` });
+  } catch (err) {
+    console.error('[onboarding/send-code] Error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── POST /api/onboarding/verify-code ───────────────────────────────────────
+const verifySchema = z.object({
+  code: z.string().length(6),
+});
+
+router.post('/verify-code', async (req: AuthRequest, res: Response) => {
+  try {
+    const { code } = verifySchema.parse(req.body);
+
+    const { data: company } = await supabase
+      .from('companies')
+      .select('id, phone_verification_code, phone_verified')
+      .eq('user_id', req.user!.userId)
+      .single();
+
+    if (!company) {
+      return res.status(400).json({ error: 'Company not found' });
+    }
+
+    if (company.phone_verified) {
+      return res.json({ verified: true, message: 'Teléfono ya verificado' });
+    }
+
+    if (company.phone_verification_code !== code) {
+      return res.status(400).json({ error: 'Código incorrecto. Intenta de nuevo.' });
+    }
+
+    const { error: updateError } = await supabase
+      .from('companies')
+      .update({ phone_verified: true, phone_verification_code: null })
+      .eq('id', company.id);
+
+    if (updateError) {
+      return res.status(500).json({ error: 'Failed to verify code' });
+    }
+
+    return res.json({ verified: true, message: 'Teléfono verificado correctamente' });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'El código debe tener 6 dígitos' });
+    }
+    console.error('[onboarding/verify-code] Error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });

@@ -71,6 +71,15 @@ export const api = {
 
     completeChannels: () =>
       request<any>('/api/onboarding/channels', { method: 'POST' }),
+
+    sendCode: () =>
+      request<{ sent: boolean; message: string }>('/api/onboarding/send-code', { method: 'POST' }),
+
+    verifyCode: (code: string) =>
+      request<{ verified: boolean; message: string }>('/api/onboarding/verify-code', {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+      }),
   },
 
   dashboard: {

@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import path from 'path';
 import dotenv from 'dotenv';
 
@@ -17,6 +16,8 @@ import whatsappRoutes from './routes/whatsapp';
 import billingRoutes from './routes/billing';
 import dashboardRoutes from './routes/dashboard';
 import adminRoutes from './routes/admin';
+import statusRoutes from './routes/status';
+import { apiLimiter } from './middleware/rateLimiter';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,15 +28,6 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
 }));
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-app.use('/api/', limiter);
 
 // ─── Body Parsing ───────────────────────────────────────────────────────────
 // Stripe webhook needs raw body — must be before express.json()
@@ -48,18 +40,17 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', service: 'recept-ai-backend', timestamp: new Date().toISOString() });
 });
 
-
-
 // ─── API Routes ─────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
-app.use('/api/onboarding', onboardingRoutes);
+app.use('/api/onboarding', apiLimiter(10), onboardingRoutes);
 app.use('/api/vapi', vapiRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
-app.use('/api/billing', billingRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/calls', dashboardRoutes);
-app.use('/api/appointments', dashboardRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/billing', apiLimiter(10), billingRoutes);
+app.use('/api/dashboard', apiLimiter(10), dashboardRoutes);
+app.use('/api/calls', apiLimiter(10), dashboardRoutes);
+app.use('/api/appointments', apiLimiter(10), dashboardRoutes);
+app.use('/api/admin', apiLimiter(10), adminRoutes);
+app.use('/api/status', statusRoutes);
 
 // ─── 404 Handler ────────────────────────────────────────────────────────────
 app.use((_req, res) => {
