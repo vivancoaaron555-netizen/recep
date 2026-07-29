@@ -25,14 +25,29 @@ router.post('/webhook', async (req: Request, res: Response) => {
 
     // ── assistant-request: Return dynamic assistant config ───────────────────
     if (messageType === 'assistant-request') {
-      const phoneNumber = body?.message?.call?.customer?.number || '';
+      const callerNumber = body?.message?.call?.customer?.number || '';
 
-      // Find company by Twilio phone number
-      const { data: phoneRecord } = await supabase
-        .from('phone_numbers')
-        .select('company_id')
-        .eq('twilio_number', body?.message?.call?.phoneNumberId || '')
-        .single();
+      // Try to find company by phone number (Vapi sends number string, Twilio sends ID)
+      const vapiPhoneNumber = body?.message?.call?.phoneNumber?.number || '';
+      const phoneNumberId = body?.message?.call?.phoneNumberId || '';
+
+      let phoneRecord: any = null;
+      if (vapiPhoneNumber) {
+        const { data } = await supabase
+          .from('phone_numbers')
+          .select('company_id')
+          .eq('twilio_number', vapiPhoneNumber)
+          .maybeSingle();
+        phoneRecord = data;
+      }
+      if (!phoneRecord && phoneNumberId) {
+        const { data } = await supabase
+          .from('phone_numbers')
+          .select('company_id')
+          .eq('twilio_number', phoneNumberId)
+          .maybeSingle();
+        phoneRecord = data;
+      }
 
       let company: any = null;
       let assistant: any = null;
