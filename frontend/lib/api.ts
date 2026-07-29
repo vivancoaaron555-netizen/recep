@@ -111,4 +111,13 @@ export const api = {
     stats: () => request<any>('/api/admin/stats'),
     pipeline: () => request<{ stages: any[] }>('/api/admin/pipeline'),
   },
+
+  phoneNumbers: {
+    buy: () =>
+      request<{ success: boolean; phoneNumber: string }>('/api/phone-numbers/buy', { method: 'POST' }),
+    my: () =>
+      request<{ success: boolean; phoneNumber: string | null; friendlyName: string | null }>('/api/phone-numbers/my'),
+    release: () =>
+      request<{ success: boolean }>('/api/phone-numbers/release', { method: 'POST' }),
+  },
 };

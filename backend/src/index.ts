@@ -17,6 +17,7 @@ import billingRoutes from './routes/billing';
 import dashboardRoutes from './routes/dashboard';
 import adminRoutes from './routes/admin';
 import statusRoutes from './routes/status';
+import phoneNumberRoutes from './routes/phone-numbers';
 import { apiLimiter } from './middleware/rateLimiter';
 
 const app = express();
@@ -51,6 +52,7 @@ app.use('/api/calls', apiLimiter(10), dashboardRoutes);
 app.use('/api/appointments', apiLimiter(10), dashboardRoutes);
 app.use('/api/admin', apiLimiter(10), adminRoutes);
 app.use('/api/status', statusRoutes);
+app.use('/api/phone-numbers', apiLimiter(10), phoneNumberRoutes);
 
 // ─── 404 Handler ────────────────────────────────────────────────────────────
 app.use((_req, res) => {

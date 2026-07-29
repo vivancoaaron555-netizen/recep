@@ -366,6 +366,8 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
   const [verifying, setVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
   const [devCode, setDevCode] = useState('');
+  const [assigningNumber, setAssigningNumber] = useState(false);
+  const [assignedNumber, setAssignedNumber] = useState<string | null>(null);
 
   const handleActivate = async () => {
     setLoading(true);
@@ -398,6 +400,18 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
       const result = await api.onboarding.verifyCode(code);
       setVerified(true);
       toast.success(result.message);
+      // Auto-assign phone number
+      setAssigningNumber(true);
+      try {
+        const numResult = await api.phoneNumbers.buy();
+        setAssignedNumber(numResult.phoneNumber);
+        toast.success('¡Número asignado!');
+      } catch (numErr: any) {
+        console.error('Error assigning number:', numErr);
+        toast.error('No se pudo asignar un número automáticamente. Puedes hacerlo después desde Configuración.');
+      } finally {
+        setAssigningNumber(false);
+      }
     } catch (err: any) {
       toast.error(err.message || 'Código incorrecto');
     } finally {
@@ -509,9 +523,18 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
       )}
 
       {channelData && verified && (
-        <button onClick={() => onNext(channelData)} className="btn-primary w-full justify-center">
-          Continuar al pago <ChevronRight className="w-4 h-4" />
-        </button>
+        <>
+          {assignedNumber && (
+            <div className="card border-primary/30 bg-primary/5 text-center">
+              <p className="text-sm text-muted-foreground">Tu número asignado</p>
+              <p className="text-xl font-bold tracking-wide">{assignedNumber}</p>
+              <p className="text-xs text-muted-foreground mt-1">Los clientes llaman a este número para contactarte</p>
+            </div>
+          )}
+          <button onClick={() => onNext(channelData)} disabled={assigningNumber} className="btn-primary w-full justify-center">
+            {assigningNumber ? <><Loader2 className="w-4 h-4 animate-spin" /> Asignando número...</> : <>Continuar al pago <ChevronRight className="w-4 h-4" /></>}
+          </button>
+        </>
       )}
 
       {channelData && verified && (

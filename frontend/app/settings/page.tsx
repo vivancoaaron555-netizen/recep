@@ -176,14 +176,39 @@ function AssistantTab() {
 }
 
 function ChannelsTab() {
+  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.phoneNumbers.my()
+      .then(data => setPhoneNumber(data.phoneNumber))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="space-y-4">
       <h2 className="font-semibold text-lg">Canales de Atención</h2>
+
+      {/* Phone channel with number display */}
+      <div className="card">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+              <Phone className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium">Llamadas telefónicas</p>
+              <p className="text-sm text-muted-foreground">
+                {loading ? 'Cargando...' : phoneNumber || 'Sin número asignado'}
+              </p>
+            </div>
+          </div>
+          <span className="badge-success"><Check className="w-3 h-3" /> Activo</span>
+        </div>
+      </div>
+
       {[
-        {
-          name: 'Llamadas telefónicas', icon: Phone, status: 'active', color: 'text-primary',
-          desc: 'Atención automática de llamadas con voz IA',
-        },
         {
           name: 'WhatsApp', icon: MessageCircle, status: 'active', color: 'text-green-500',
           desc: 'Respuesta automática a mensajes de WhatsApp',
@@ -195,7 +220,7 @@ function ChannelsTab() {
       ].map((channel) => (
         <div key={channel.name} className="card flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center`}>
+            <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center">
               <channel.icon className={`w-5 h-5 ${channel.color}`} />
             </div>
             <div>
