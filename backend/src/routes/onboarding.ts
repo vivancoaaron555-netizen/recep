@@ -81,6 +81,29 @@ router.post('/company', async (req: AuthRequest, res: Response) => {
   }
 });
 
+// ─── GET /api/onboarding/assistant ──────────────────────────────────────────
+router.get('/assistant', async (req: AuthRequest, res: Response) => {
+  try {
+    const { data: company } = await supabase
+      .from('companies')
+      .select('id')
+      .eq('user_id', req.user!.userId)
+      .single();
+
+    if (!company) return res.status(404).json({ error: 'Company not found' });
+
+    const { data: assistant } = await supabase
+      .from('assistants')
+      .select('*')
+      .eq('company_id', company.id)
+      .single();
+
+    return res.json({ assistant });
+  } catch (err) {
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // ─── POST /api/onboarding/assistant ─────────────────────────────────────────
 const assistantSchema = z.object({
   name: z.string().min(2),
@@ -88,6 +111,7 @@ const assistantSchema = z.object({
   voice_id: z.string(),
   language: z.string().default('es'),
   personality: z.string(),
+  system_prompt: z.string().optional(),
 });
 
 router.post('/assistant', async (req: AuthRequest, res: Response) => {
@@ -105,8 +129,8 @@ router.post('/assistant', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Company not found. Complete step 1 first.' });
     }
 
-    // Generate system prompt
-    const systemPrompt = generateSystemPrompt(
+    // Generate system prompt (or use custom one)
+    const systemPrompt = body.system_prompt || generateSystemPrompt(
       { name: body.name, gender: body.gender, voice_id: body.voice_id, language: body.language, personality: body.personality },
       company
     );

@@ -63,6 +63,9 @@ export const api = {
         body: JSON.stringify(data),
       }),
 
+    getAssistant: () =>
+      request<{ assistant: any }>('/api/onboarding/assistant'),
+
     saveAssistant: (data: any) =>
       request<{ assistant: any }>('/api/onboarding/assistant', {
         method: 'POST',

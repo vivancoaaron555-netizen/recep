@@ -103,15 +103,27 @@ function AssistantTab() {
     voice_id: VOICES[0].id,
     language: 'es',
     personality: 'professional',
+    system_prompt: '',
   });
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
-    api.auth.me().then(({ company }) => {
-      if (company?.id) {
-        // Would fetch assistant data here - using defaults for now
-      }
-    });
+    api.onboarding.getAssistant()
+      .then(({ assistant }) => {
+        if (assistant) {
+          setForm({
+            name: assistant.name || 'Sofia',
+            gender: assistant.gender || 'female',
+            voice_id: assistant.voice_id || VOICES[0].id,
+            language: assistant.language || 'es',
+            personality: assistant.personality || 'professional',
+            system_prompt: assistant.system_prompt || '',
+          });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setFetching(false));
   }, []);
 
   const handleSave = async () => {
@@ -125,6 +137,10 @@ function AssistantTab() {
       setLoading(false);
     }
   };
+
+  if (fetching) {
+    return <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
+  }
 
   return (
     <div className="space-y-4">
@@ -166,6 +182,14 @@ function AssistantTab() {
               </button>
             ))}
           </div>
+        </div>
+        <div className="md:col-span-2">
+          <label className="label">Instrucciones personalizadas (system prompt)</label>
+          <textarea className="input h-32 resize-none font-mono text-xs"
+            value={form.system_prompt}
+            onChange={e => setForm({ ...form, system_prompt: e.target.value })}
+            placeholder="Escribe instrucciones personalizadas para tu recepcionista..." />
+          <p className="text-xs text-muted-foreground mt-1">Si lo dejas vacío, se genera automáticamente según la personalidad y datos de la empresa</p>
         </div>
       </div>
       <button onClick={handleSave} disabled={loading} className="btn-primary">
