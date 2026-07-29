@@ -365,6 +365,7 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
   const [code, setCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [devCode, setDevCode] = useState('');
 
   const handleActivate = async () => {
     setLoading(true);
@@ -375,6 +376,10 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
       // Send verification code automatically
       const result = await api.onboarding.sendCode();
       setCodeSent(true);
+      if (result.devCode) {
+        setDevCode(result.devCode);
+        setCode(result.devCode);
+      }
       toast.success(result.message);
     } catch (err: any) {
       toast.error(err.message || 'Error al activar canales');
@@ -477,7 +482,7 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
             <div>
               <h3 className="font-semibold">Verifica tu número</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Enviamos un código de 6 dígitos al teléfono registrado
+                {devCode ? `Código de desarrollo: ${devCode}` : 'Enviamos un código de 6 dígitos al teléfono registrado'}
               </p>
             </div>
             <div className="flex gap-2 max-w-xs mx-auto">

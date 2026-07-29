@@ -200,6 +200,12 @@ router.post('/send-code', async (req: AuthRequest, res: Response) => {
       return res.status(500).json({ error: 'Failed to save verification code' });
     }
 
+    // Admin bypass: skip SMS, show code in response
+    if (req.user!.email === process.env.ADMIN_EMAIL) {
+      console.log('[onboarding/send-code] Admin bypass — code:', code);
+      return res.json({ sent: true, devCode: code, message: `Modo desarrollo — código: ${code}` });
+    }
+
     const sent = await sendSMS(company.phone, `Tu código de verificación de Recept.ai es: ${code}. Este código expira en 10 minutos.`);
 
     if (!sent) {

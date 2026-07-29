@@ -73,7 +73,7 @@ export const api = {
       request<any>('/api/onboarding/channels', { method: 'POST' }),
 
     sendCode: () =>
-      request<{ sent: boolean; message: string }>('/api/onboarding/send-code', { method: 'POST' }),
+      request<{ sent: boolean; message: string; devCode?: string }>('/api/onboarding/send-code', { method: 'POST' }),
 
     verifyCode: (code: string) =>
       request<{ verified: boolean; message: string }>('/api/onboarding/verify-code', {
