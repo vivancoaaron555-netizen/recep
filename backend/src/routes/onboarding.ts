@@ -242,7 +242,7 @@ router.post('/verify-code', async (req: AuthRequest, res: Response) => {
 
     const { error: updateError } = await supabase
       .from('companies')
-      .update({ phone_verified: true, phone_verification_code: null })
+      .update({ phone_verified: true, phone_verification_code: null, onboarding_completed: true })
       .eq('id', company.id);
 
     if (updateError) {
