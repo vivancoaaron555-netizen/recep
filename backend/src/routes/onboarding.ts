@@ -4,6 +4,11 @@ import { supabase } from '../utils/supabase';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { generateSystemPrompt } from '../utils/generateSystemPrompt';
 import { lookupPhone, sendSMS, generateCode } from '../utils/twilio';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
+const upload = multer({ dest: path.join(__dirname, '../../uploads') });
 
 const router = Router();
 
@@ -21,9 +26,9 @@ const companySchema = z.object({
   })),
   services: z.array(z.string()).min(1),
   address: z.string().optional(),
-  faq: z.string().optional(),
   phone: z.string().min(7, 'Número de teléfono inválido'),
   website: z.string().optional(),
+  custom_info: z.string().optional(),
 });
 
 router.post('/company', async (req: AuthRequest, res: Response) => {
@@ -286,6 +291,66 @@ router.post('/verify-code', async (req: AuthRequest, res: Response) => {
     }
     console.error('[onboarding/verify-code] Error:', err);
     return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── POST /api/onboarding/upload-doc ──────────────────────────────────────────
+router.post('/upload-doc', upload.single('file'), async (req: AuthRequest, res: Response) => {
+  try {
+    const file = req.file;
+    if (!file) return res.status(400).json({ error: 'No se subió ningún archivo' });
+
+    const ext = path.extname(file.originalname).toLowerCase();
+    let text = '';
+
+    if (ext === '.txt') {
+      text = fs.readFileSync(file.path, 'utf8');
+    } else if (ext === '.pdf') {
+      const pdfParse = require('pdf-parse');
+      const pdfBuffer = fs.readFileSync(file.path);
+      const pdfData = await pdfParse(pdfBuffer);
+      text = pdfData.text;
+    } else if (ext === '.docx') {
+      const mammoth = require('mammoth');
+      const docxBuffer = fs.readFileSync(file.path);
+      const result = await mammoth.extractRawText({ buffer: docxBuffer });
+      text = result.value;
+    } else {
+      fs.unlinkSync(file.path);
+      return res.status(400).json({ error: 'Formato no soportado. Usa PDF, DOCX o TXT.' });
+    }
+
+    fs.unlinkSync(file.path);
+    return res.json({ text: text.trim() });
+  } catch (err: any) {
+    console.error('[onboarding/upload-doc] Error:', err);
+    return res.status(500).json({ error: 'Error al procesar el archivo' });
+  }
+});
+
+// ─── POST /api/onboarding/import-gdoc ─────────────────────────────────────────
+router.post('/import-gdoc', async (req: AuthRequest, res: Response) => {
+  try {
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ error: 'URL requerida' });
+
+    // Extract document ID from Google Docs URL
+    const match = url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+    if (!match) return res.status(400).json({ error: 'URL de Google Docs inválida' });
+
+    const docId = match[1];
+    const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=txt`;
+
+    const response = await fetch(exportUrl);
+    if (!response.ok) {
+      return res.status(400).json({ error: 'No se pudo acceder al documento. Asegúrate de que sea público.' });
+    }
+
+    const text = await response.text();
+    return res.json({ text: text.trim() });
+  } catch (err: any) {
+    console.error('[onboarding/import-gdoc] Error:', err);
+    return res.status(500).json({ error: 'Error al importar el documento' });
   }
 });
 

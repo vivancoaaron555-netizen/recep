@@ -18,6 +18,7 @@ interface Call {
   duration_seconds: number;
   transcript: string;
   summary: string;
+  recording_url: string;
   appointment_created: boolean;
   status: string;
   created_at: string;
@@ -84,6 +85,19 @@ function TranscriptModal({ call, onClose }: { call: Call; onClose: () => void })
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {/* Recording */}
+              {call.recording_url && (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Phone className="w-4 h-4 text-primary" />
+                    <h3 className="font-medium text-sm">Grabación de la llamada</h3>
+                  </div>
+                  <audio controls className="w-full" src={call.recording_url}>
+                    Tu navegador no soporta el reproductor de audio
+                  </audio>
+                </div>
+              )}
+
               {/* AI Summary */}
               {call.summary && (
                 <div>
@@ -186,6 +200,7 @@ export default function CallsPage() {
                   <th className="text-left px-4 py-3 hidden md:table-cell">Cita</th>
                   <th className="text-left px-4 py-3">Estado</th>
                   <th className="text-left px-4 py-3">Fecha</th>
+                  <th className="text-left px-4 py-3">Audio</th>
                   <th className="text-left px-4 py-3">Transcripción</th>
                 </tr>
               </thead>
@@ -250,7 +265,17 @@ export default function CallsPage() {
                         {format(new Date(call.created_at), "d MMM, HH:mm", { locale: es })}
                       </td>
                       <td className="px-4 py-3">
-                        <button className="btn-ghost text-xs py-1 px-2">
+                        {call.recording_url ? (
+                          <button className="btn-ghost text-xs py-1 px-2" onClick={(e) => { e.stopPropagation(); setSelectedCall(call); }}>
+                            ▶ Escuchar
+                          </button>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <button className="btn-ghost text-xs py-1 px-2"
+                          onClick={(e) => { e.stopPropagation(); setSelectedCall(call); }}>
                           {call.transcript ? 'Ver transcript' : 'Sin transcript'}
                         </button>
                       </td>

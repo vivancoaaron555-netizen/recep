@@ -8,6 +8,23 @@
 -- ALTER TABLE companies ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN NOT NULL DEFAULT FALSE;
 -- ALTER TABLE companies ADD COLUMN IF NOT EXISTS phone_verification_code TEXT;
 
+-- ⚡ MIGRATION (July 2026): Add custom_info and recording_url
+-- ALTER TABLE companies ADD COLUMN IF NOT EXISTS custom_info TEXT;
+-- ALTER TABLE calls ADD COLUMN IF NOT EXISTS recording_url TEXT;
+
+-- ⚡ MIGRATION (July 2026): Create notifications table
+-- CREATE TABLE IF NOT EXISTS notifications (
+--   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+--   company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+--   type TEXT NOT NULL,
+--   title TEXT NOT NULL,
+--   message TEXT NOT NULL,
+--   data JSONB,
+--   read BOOLEAN NOT NULL DEFAULT FALSE,
+--   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_notifications_company ON notifications(company_id, created_at DESC);
+
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 

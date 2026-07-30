@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   Building2, Bot, Radio, CreditCard, Save, Loader2,
-  ExternalLink, Check, AlertCircle, Phone, MessageCircle, Globe
+  ExternalLink, Check, AlertCircle, Phone, MessageCircle, Globe,
+  Upload, Link
 } from 'lucide-react';
 import { AppLayout } from '@/components/AppLayout';
 import { api } from '@/lib/api';
@@ -40,7 +41,6 @@ function CompanyTab({ data }: { data: any }) {
     address: data?.address || '',
     phone: data?.phone || '',
     website: data?.website || '',
-    faq: data?.faq || '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -84,10 +84,6 @@ function CompanyTab({ data }: { data: any }) {
           <label className="label">Dirección</label>
           <input className="input" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
         </div>
-        <div className="md:col-span-2">
-          <label className="label">Preguntas frecuentes</label>
-          <textarea className="input h-32 resize-none" value={form.faq} onChange={e => setForm({ ...form, faq: e.target.value })} />
-        </div>
       </div>
       <button onClick={handleSave} disabled={loading} className="btn-primary">
         {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando...</> : <><Save className="w-4 h-4" /> Guardar cambios</>}
@@ -104,37 +100,85 @@ function AssistantTab() {
     language: 'es',
     personality: 'professional',
     system_prompt: '',
+    custom_info: '',
   });
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [gdocUrl, setGdocUrl] = useState('');
+  const [showGdocInput, setShowGdocInput] = useState(false);
 
   useEffect(() => {
-    api.onboarding.getAssistant()
-      .then(({ assistant }) => {
-        if (assistant) {
-          setForm({
-            name: assistant.name || 'Sofia',
-            gender: assistant.gender || 'female',
-            voice_id: assistant.voice_id || VOICES[0].id,
-            language: assistant.language || 'es',
-            personality: assistant.personality || 'professional',
-            system_prompt: assistant.system_prompt || '',
-          });
-        }
-      })
-      .catch(() => {})
-      .finally(() => setFetching(false));
+    Promise.all([
+      api.onboarding.getAssistant(),
+      api.auth.me(),
+    ]).then(([{ assistant }, { company }]) => {
+      if (assistant) {
+        setForm(prev => ({
+          ...prev,
+          name: assistant.name || 'Sofia',
+          gender: assistant.gender || 'female',
+          voice_id: assistant.voice_id || VOICES[0].id,
+          language: assistant.language || 'es',
+          personality: assistant.personality || 'professional',
+          system_prompt: assistant.system_prompt || '',
+        }));
+      }
+      if (company?.custom_info) {
+        setForm(prev => ({ ...prev, custom_info: company.custom_info }));
+      }
+    })
+    .catch(() => {})
+    .finally(() => setFetching(false));
   }, []);
 
   const handleSave = async () => {
     setLoading(true);
     try {
-      await api.onboarding.saveAssistant(form);
+      await api.onboarding.saveAssistant({
+        name: form.name, gender: form.gender, voice_id: form.voice_id,
+        language: form.language, personality: form.personality,
+        system_prompt: form.system_prompt,
+      });
+      await api.onboarding.saveCompany({ custom_info: form.custom_info });
       toast.success('Recepcionista actualizada correctamente');
     } catch (err: any) {
       toast.error(err.message || 'Error al guardar');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    try {
+      const result = await api.onboarding.uploadDoc(file);
+      setForm(prev => ({ ...prev, custom_info: prev.custom_info ? prev.custom_info + '\n\n' + result.text : result.text }));
+      toast.success('Archivo importado');
+    } catch (err: any) {
+      toast.error(err.message || 'Error al importar');
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleImportGdoc = async () => {
+    if (!gdocUrl.trim()) return;
+    setImporting(true);
+    try {
+      const result = await api.onboarding.importGdoc(gdocUrl.trim());
+      setForm(prev => ({ ...prev, custom_info: prev.custom_info ? prev.custom_info + '\n\n' + result.text : result.text }));
+      toast.success('Documento importado');
+      setShowGdocInput(false);
+      setGdocUrl('');
+    } catch (err: any) {
+      toast.error(err.message || 'Error al importar');
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -190,6 +234,32 @@ function AssistantTab() {
             onChange={e => setForm({ ...form, system_prompt: e.target.value })}
             placeholder="Escribe instrucciones personalizadas para tu recepcionista..." />
           <p className="text-xs text-muted-foreground mt-1">Si lo dejas vacío, se genera automáticamente según la personalidad y datos de la empresa</p>
+        </div>
+        <div className="md:col-span-2">
+          <label className="label">Información adicional de la empresa</label>
+          <p className="text-xs text-muted-foreground mb-2">Precios, políticas, horarios especiales, promociones — todo lo que debe saber la recepcionista.</p>
+          <textarea className="input h-32 resize-none font-mono text-xs"
+            value={form.custom_info}
+            onChange={e => setForm({ ...form, custom_info: e.target.value })}
+            placeholder="Ej: Precios, promociones, políticas de cancelación..." />
+          <div className="flex gap-2 mt-2">
+            <button type="button" onClick={() => fileInputRef.current?.click()} disabled={importing} className="btn-secondary text-xs">
+              {importing ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Upload className="w-3 h-3" /> Subir archivo</>}
+            </button>
+            <button type="button" onClick={() => setShowGdocInput(!showGdocInput)} className="btn-secondary text-xs">
+              <Link className="w-3 h-3" /> Google Docs
+            </button>
+            <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt" className="hidden" onChange={handleFileUpload} />
+          </div>
+          {showGdocInput && (
+            <div className="flex gap-2 mt-2">
+              <input className="input text-sm flex-1" placeholder="Pega la URL de Google Docs..."
+                value={gdocUrl} onChange={e => setGdocUrl(e.target.value)} />
+              <button type="button" onClick={handleImportGdoc} disabled={importing || !gdocUrl.trim()} className="btn-primary text-xs">
+                {importing ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Importar'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
       <button onClick={handleSave} disabled={loading} className="btn-primary">

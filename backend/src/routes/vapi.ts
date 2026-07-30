@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { supabase } from '../utils/supabase';
 import { generateSystemPrompt } from '../utils/generateSystemPrompt';
 import { generateResponse, generateCallSummary, Message } from '../utils/groq';
+import { sendNewAppointmentEmail } from '../utils/email';
+import { createNotification } from './notifications';
 
 const router = Router();
 
@@ -146,6 +148,19 @@ router.post('/webhook', async (req: Request, res: Response) => {
             .select()
             .single();
 
+          // Send notification + email
+          if (appointment) {
+            const title = 'Nueva cita agendada por llamada';
+            const message = `${params.name} agendó ${params.service} para el ${params.date}`;
+            await createNotification(companyId, 'appointment', title, message, { appointment_id: appointment.id });
+            sendNewAppointmentEmail(companyId, {
+              patient_name: params.name,
+              patient_phone: params.phone,
+              service: params.service,
+              date: params.date,
+            }).catch(e => console.error('[email] Error sending:', e));
+          }
+
           return res.json({
             result: `Cita creada exitosamente para ${params.name} el ${params.date} para ${params.service}.`,
           });
@@ -161,6 +176,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
       const transcript = body?.message?.transcript || '';
       const durationSeconds = Math.round(body?.message?.durationSeconds || 0);
       const phoneFrom = call?.customer?.number || 'unknown';
+      const recordingUrl = call?.artifact?.recordingUrl || call?.recordingUrl || '';
 
       // Find company by phone number or metadata
       const companyId = call?.metadata?.companyId;
@@ -180,6 +196,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
           duration_seconds: durationSeconds,
           transcript,
           summary,
+          recording_url: recordingUrl,
           appointment_created: appointmentCreated,
           vapi_call_id: call?.id,
           status: 'completed',

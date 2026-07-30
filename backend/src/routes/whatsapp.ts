@@ -3,6 +3,8 @@ import { supabase } from '../utils/supabase';
 import { generateSystemPrompt } from '../utils/generateSystemPrompt';
 import { generateResponse, Message } from '../utils/groq';
 import twilio from 'twilio';
+import { sendNewAppointmentEmail } from '../utils/email';
+import { createNotification } from './notifications';
 
 const router = Router();
 
@@ -130,6 +132,22 @@ router.post('/webhook', async (req: Request, res: Response) => {
             .update({ appointment_created: true })
             .eq('company_id', companyId)
             .eq('phone_from', phoneClean);
+
+          // Try to extract appointment details from conversation
+          const lastUserMsg = [...history].reverse().find(m => m.role === 'user');
+          if (lastUserMsg) {
+            createNotification(companyId, 'appointment',
+              'Posible cita agendada por WhatsApp',
+              `Cliente (${phoneClean}): ${lastUserMsg.content.substring(0, 100)}`,
+              { phone_from: phoneClean }
+            ).catch(() => {});
+            sendNewAppointmentEmail(companyId, {
+              patient_name: phoneClean,
+              patient_phone: phoneClean,
+              service: 'Consulta',
+              date: new Date().toISOString(),
+            }).catch(e => console.error('[email] Error sending:', e));
+          }
         }
       }
     }

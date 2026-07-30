@@ -13,6 +13,7 @@ interface Company {
   services: string[];
   address?: string;
   faq?: string;
+  custom_info?: string;
   phone?: string;
   website?: string;
 }
@@ -60,6 +61,8 @@ INFORMACIÓN DE LA EMPRESA:
 - Horario de atención: ${scheduleText}
 
 ${company.faq ? `PREGUNTAS FRECUENTES:\n${company.faq}` : ''}
+
+${company.custom_info ? `INFORMACIÓN ADICIONAL PROPORCIONADA POR LA EMPRESA:\n${company.custom_info}` : ''}
 
 PERSONALIDAD Y ESTILO:
 - Personalidad: ${assistant.personality}

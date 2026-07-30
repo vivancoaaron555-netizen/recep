@@ -56,35 +56,6 @@ export const api = {
     me: () => request<{ user: any; company: any; subscription: any }>('/api/auth/me'),
   },
 
-  onboarding: {
-    saveCompany: (data: any) =>
-      request<{ company: any }>('/api/onboarding/company', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }),
-
-    getAssistant: () =>
-      request<{ assistant: any }>('/api/onboarding/assistant'),
-
-    saveAssistant: (data: any) =>
-      request<{ assistant: any }>('/api/onboarding/assistant', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }),
-
-    completeChannels: () =>
-      request<any>('/api/onboarding/channels', { method: 'POST' }),
-
-    sendCode: () =>
-      request<{ sent: boolean; message: string; devCode?: string }>('/api/onboarding/send-code', { method: 'POST' }),
-
-    verifyCode: (code: string) =>
-      request<{ verified: boolean; message: string }>('/api/onboarding/verify-code', {
-        method: 'POST',
-        body: JSON.stringify({ code }),
-      }),
-  },
-
   dashboard: {
     stats: () => request<any>('/api/dashboard/stats'),
     calls: (page = 1, limit = 20) =>
@@ -122,5 +93,71 @@ export const api = {
       request<{ success: boolean; phoneNumber: string | null; friendlyName: string | null }>('/api/phone-numbers/my'),
     release: () =>
       request<{ success: boolean }>('/api/phone-numbers/release', { method: 'POST' }),
+  },
+
+  onboarding: {
+    saveCompany: (data: any) =>
+      request<{ company: any }>('/api/onboarding/company', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+    getAssistant: () =>
+      request<{ assistant: any }>('/api/onboarding/assistant'),
+
+    saveAssistant: (data: any) =>
+      request<{ assistant: any }>('/api/onboarding/assistant', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+    completeChannels: () =>
+      request<any>('/api/onboarding/channels', { method: 'POST' }),
+
+    sendCode: () =>
+      request<{ sent: boolean; message: string; devCode?: string }>('/api/onboarding/send-code', { method: 'POST' }),
+
+    verifyCode: (code: string) =>
+      request<{ verified: boolean; message: string }>('/api/onboarding/verify-code', {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+      }),
+
+    uploadDoc: (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = getApiToken();
+      return fetch(`${API_URL}/api/onboarding/upload-doc`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      }).then(async res => {
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: res.statusText }));
+          throw new Error(err.error || 'Error al subir archivo');
+        }
+        return res.json() as Promise<{ text: string }>;
+      });
+    },
+
+    importGdoc: (url: string) =>
+      request<{ text: string }>('/api/onboarding/import-gdoc', {
+        method: 'POST',
+        body: JSON.stringify({ url }),
+      }),
+  },
+
+  notifications: {
+    list: () =>
+      request<{ notifications: any[] }>('/api/notifications'),
+
+    unreadCount: () =>
+      request<{ count: number }>('/api/notifications/unread-count'),
+
+    markRead: (ids?: string[]) =>
+      request<{ success: boolean }>('/api/notifications/read', {
+        method: 'POST',
+        body: JSON.stringify({ ids }),
+      }),
   },
 };

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bot, Building2, User, Radio, Check,
   ChevronRight, ChevronLeft, Loader2, Plus, X,
-  Phone, MessageCircle, Globe, Volume2, CreditCard
+  Phone, MessageCircle, Globe, Volume2, CreditCard,
+  Upload, Link
 } from 'lucide-react';
 import { api, setApiToken } from '@/lib/api';
 import { useSession } from 'next-auth/react';
@@ -99,7 +100,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
 // ─── Step 1: Company Info ─────────────────────────────────────────────────────
 function Step1({ onNext }: { onNext: (data: any) => void }) {
   const [form, setForm] = useState({
-    name: '', sector: '', address: '', phone: '', website: '', faq: '',
+    name: '', sector: '', address: '', phone: '', website: '',
   });
   const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE);
   const [services, setServices] = useState<string[]>(['']);
@@ -221,13 +222,6 @@ function Step1({ onNext }: { onNext: (data: any) => void }) {
         </div>
       </div>
 
-      {/* FAQ */}
-      <div>
-        <label className="label">Preguntas frecuentes (opcional)</label>
-        <textarea className="input h-28 resize-none" placeholder="Ej: ¿Aceptan seguro? Sí, aceptamos la mayoría. ¿Tienen estacionamiento? Sí, gratuito..."
-          value={form.faq} onChange={e => setForm({ ...form, faq: e.target.value })} />
-      </div>
-
       <button type="submit" disabled={loading} className="btn-primary w-full justify-center">
         {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando...</> : <>Continuar <ChevronRight className="w-4 h-4" /></>}
       </button>
@@ -244,7 +238,12 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
     language: 'es',
     personality: 'professional',
   });
+  const [customInfo, setCustomInfo] = useState('');
   const [loading, setLoading] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [gdocUrl, setGdocUrl] = useState('');
+  const [showGdocInput, setShowGdocInput] = useState(false);
 
   const femaleVoices = VOICES.filter(v => v.gender === 'female');
   const maleVoices = VOICES.filter(v => v.gender === 'male');
@@ -254,12 +253,49 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
     e.preventDefault();
     setLoading(true);
     try {
+      // Save assistant config
       await api.onboarding.saveAssistant(form);
-      onNext(form);
+      // Save custom info to company
+      if (customInfo.trim()) {
+        await api.onboarding.saveCompany({ custom_info: customInfo });
+      }
+      onNext({ ...form, customInfo });
     } catch (err: any) {
       toast.error(err.message || 'Error al configurar asistente');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    try {
+      const result = await api.onboarding.uploadDoc(file);
+      setCustomInfo(prev => prev ? prev + '\n\n' + result.text : result.text);
+      toast.success('Archivo importado correctamente');
+    } catch (err: any) {
+      toast.error(err.message || 'Error al importar archivo');
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleImportGdoc = async () => {
+    if (!gdocUrl.trim()) return;
+    setImporting(true);
+    try {
+      const result = await api.onboarding.importGdoc(gdocUrl.trim());
+      setCustomInfo(prev => prev ? prev + '\n\n' + result.text : result.text);
+      toast.success('Documento importado correctamente');
+      setShowGdocInput(false);
+      setGdocUrl('');
+    } catch (err: any) {
+      toast.error(err.message || 'Error al importar documento');
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -343,6 +379,40 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Company additional info */}
+      <div>
+        <label className="label">Información adicional de la empresa</label>
+        <p className="text-xs text-muted-foreground mb-2">
+          Escribe precios, políticas, promociones o cualquier info que deba saber la recepcionista.
+          También puedes subir un archivo o importar de Google Docs.
+        </p>
+        <textarea className="input h-32 resize-none font-mono text-xs"
+          value={customInfo}
+          onChange={e => setCustomInfo(e.target.value)}
+          placeholder="Ej: Precios: Consulta general $500, Limpieza dental $800. Aceptamos VISA y Mastercard. Promoción 2x1 en primera consulta..." />
+        <div className="flex gap-2 mt-2">
+          <button type="button" onClick={() => fileInputRef.current?.click()} disabled={importing}
+            className="btn-secondary text-xs">
+            {importing ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Upload className="w-3 h-3" /> Subir archivo</>}
+          </button>
+          <button type="button" onClick={() => setShowGdocInput(!showGdocInput)}
+            className="btn-secondary text-xs">
+            <Link className="w-3 h-3" /> Google Docs
+          </button>
+          <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt" className="hidden" onChange={handleFileUpload} />
+        </div>
+        {showGdocInput && (
+          <div className="flex gap-2 mt-2">
+            <input className="input text-sm flex-1" placeholder="Pega la URL de Google Docs..."
+              value={gdocUrl} onChange={e => setGdocUrl(e.target.value)} />
+            <button type="button" onClick={handleImportGdoc} disabled={importing || !gdocUrl.trim()}
+              className="btn-primary text-xs">
+              {importing ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Importar'}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex gap-3">
