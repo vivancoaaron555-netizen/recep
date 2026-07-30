@@ -426,6 +426,7 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
 // ─── Step 3: Channels + Phone Verification ────────────────────────────────────
 function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => void }) {
   const [loading, setLoading] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
   const [channelData, setChannelData] = useState<any>(null);
   const [codeSent, setCodeSent] = useState(false);
   const [code, setCode] = useState('');
@@ -441,7 +442,17 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
       const data = await api.onboarding.completeChannels();
       setChannelData(data);
       toast.success('¡Canales activados!');
-      // Send verification code automatically
+    } catch (err: any) {
+      toast.error(err.message || 'Error al activar canales');
+      setChannelData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendCode = async () => {
+    setSendingCode(true);
+    try {
       const result = await api.onboarding.sendCode();
       setCodeSent(true);
       if (result.devCode) {
@@ -450,9 +461,9 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
       }
       toast.success(result.message);
     } catch (err: any) {
-      toast.error(err.message || 'Error al activar canales');
+      toast.error(err.message || 'Error al enviar código');
     } finally {
-      setLoading(false);
+      setSendingCode(false);
     }
   };
 
@@ -494,9 +505,11 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
                   {channelData ? '✓ Activo' : 'Incluido'}
                 </span>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Se te asignará un número de teléfono dedicado con voz IA
-              </p>
+              {channelData && (
+                <p className="text-sm font-mono mt-2">
+                  Número: <strong>{SHARED_NUMBER}</strong>
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -540,6 +553,20 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
         </div>
       </div>
 
+      {/* Activate button */}
+      {!channelData && (
+        <button onClick={handleActivate} disabled={loading} className="btn-primary w-full justify-center">
+          {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Activando...</> : <>Activar Canales <ChevronRight className="w-4 h-4" /></>}
+        </button>
+      )}
+
+      {/* Send code button (after activation, before verified) */}
+      {channelData && !verified && !codeSent && (
+        <button onClick={handleSendCode} disabled={sendingCode} className="btn-primary w-full justify-center">
+          {sendingCode ? <><Loader2 className="w-4 h-4 animate-spin" /> Enviando código...</> : <>Enviar código de verificación <ChevronRight className="w-4 h-4" /></>}
+        </button>
+      )}
+
       {/* SMS Verification */}
       {codeSent && !verified && (
         <div className="card border-primary/30 bg-primary/5">
@@ -566,17 +593,15 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
                 {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verificar'}
               </button>
             </div>
+            <button onClick={handleSendCode} disabled={sendingCode} className="btn-ghost text-xs w-full">
+              {sendingCode ? 'Enviando...' : 'Reenviar código'}
+            </button>
           </div>
         </div>
       )}
 
-      {!channelData && (
-        <button onClick={handleActivate} disabled={loading} className="btn-primary w-full justify-center">
-          {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Activando...</> : <>Activar Canales <ChevronRight className="w-4 h-4" /></>}
-        </button>
-      )}
-
-      {channelData && verified && (
+      {/* After verification */}
+      {verified && channelData && (
         <>
           <div className="card border-primary/30 bg-primary/5 text-center">
             <p className="text-sm text-muted-foreground">Tu número temporal</p>
@@ -585,19 +610,14 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
               Tus pacientes llaman a este número. Cuando actives tu plan, recibirás un número dedicado.
             </p>
           </div>
-          <button onClick={() => onNext(channelData)} className="btn-primary w-full justify-center">
-            Continuar al pago <ChevronRight className="w-4 h-4" />
-          </button>
-        </>
-      )}
-
-      {channelData && verified && (
-        <>{/* WhatsApp instructions */}
           {channelData?.whatsappInstructions && (
             <div className="bg-card border border-border rounded-lg px-3 py-2 text-xs text-muted-foreground">
               {channelData.whatsappInstructions}
             </div>
           )}
+          <button onClick={() => onNext(channelData)} className="btn-primary w-full justify-center">
+            Continuar al pago <ChevronRight className="w-4 h-4" />
+          </button>
         </>
       )}
 
