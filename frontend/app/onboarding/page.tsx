@@ -397,7 +397,7 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
             className="btn-secondary text-xs">
             <Link className="w-3 h-3" /> Google Docs
           </button>
-          <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt" className="hidden" onChange={handleFileUpload} />
+          <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.gif,.webp" className="hidden" onChange={handleFileUpload} />
         </div>
         {showGdocInput && (
           <div className="flex gap-2 mt-2">

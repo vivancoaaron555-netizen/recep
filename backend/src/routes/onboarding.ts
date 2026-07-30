@@ -149,6 +149,9 @@ router.post('/assistant', async (req: AuthRequest, res: Response) => {
         .eq('id', company.id);
     }
 
+    // Destructure custom_info so it doesn't leak into assistants table
+    const { custom_info, ...assistantData } = body;
+
     // Check if assistant already exists
     const { data: existing } = await supabase
       .from('assistants')
@@ -159,7 +162,7 @@ router.post('/assistant', async (req: AuthRequest, res: Response) => {
     if (existing) {
       const { data: assistant, error } = await supabase
         .from('assistants')
-        .update({ ...body, system_prompt: systemPrompt })
+        .update({ ...assistantData, system_prompt: systemPrompt })
         .eq('id', existing.id)
         .select()
         .single();
@@ -171,7 +174,7 @@ router.post('/assistant', async (req: AuthRequest, res: Response) => {
     // Create assistant
     const { data: assistant, error } = await supabase
       .from('assistants')
-      .insert({ ...body, company_id: company.id, system_prompt: systemPrompt })
+      .insert({ ...assistantData, company_id: company.id, system_prompt: systemPrompt })
       .select()
       .single();
 
@@ -328,9 +331,11 @@ router.post('/upload-doc', upload.single('file'), async (req: AuthRequest, res: 
       const docxBuffer = fs.readFileSync(file.path);
       const result = await mammoth.extractRawText({ buffer: docxBuffer });
       text = result.value;
+    } else if (['.png', '.jpg', '.jpeg', '.gif', '.webp'].includes(ext)) {
+      text = ''; // Images don't contain extractable text
     } else {
       fs.unlinkSync(file.path);
-      return res.status(400).json({ error: 'Formato no soportado. Usa PDF, DOCX o TXT.' });
+      return res.status(400).json({ error: 'Formato no soportado. Usa PDF, DOCX, TXT o imágenes.' });
     }
 
     fs.unlinkSync(file.path);
