@@ -117,6 +117,7 @@ const assistantSchema = z.object({
   language: z.string().default('es'),
   personality: z.string(),
   system_prompt: z.string().optional(),
+  custom_info: z.string().optional(),
 });
 
 router.post('/assistant', async (req: AuthRequest, res: Response) => {
@@ -139,6 +140,14 @@ router.post('/assistant', async (req: AuthRequest, res: Response) => {
       { name: body.name, gender: body.gender, voice_id: body.voice_id, language: body.language, personality: body.personality },
       company
     );
+
+    // Save custom_info to company if provided
+    if (body.custom_info !== undefined) {
+      await supabase
+        .from('companies')
+        .update({ custom_info: body.custom_info })
+        .eq('id', company.id);
+    }
 
     // Check if assistant already exists
     const { data: existing } = await supabase

@@ -253,12 +253,8 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
     e.preventDefault();
     setLoading(true);
     try {
-      // Save assistant config
-      await api.onboarding.saveAssistant(form);
-      // Save custom info to company
-      if (customInfo.trim()) {
-        await api.onboarding.saveCompany({ custom_info: customInfo });
-      }
+      // Save assistant config + custom info together
+      await api.onboarding.saveAssistant({ ...form, custom_info: customInfo });
       onNext({ ...form, customInfo });
     } catch (err: any) {
       toast.error(err.message || 'Error al configurar asistente');
