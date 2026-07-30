@@ -91,7 +91,7 @@ router.get('/assistant', async (req: AuthRequest, res: Response) => {
   try {
     const { data: company } = await supabase
       .from('companies')
-      .select('id')
+      .select('id, custom_info')
       .eq('user_id', req.user!.userId)
       .single();
 
@@ -103,7 +103,7 @@ router.get('/assistant', async (req: AuthRequest, res: Response) => {
       .eq('company_id', company.id)
       .single();
 
-    return res.json({ assistant });
+    return res.json({ assistant: { ...(assistant || {}), custom_info: company.custom_info || '' } });
   } catch (err) {
     return res.status(500).json({ error: 'Internal server error' });
   }

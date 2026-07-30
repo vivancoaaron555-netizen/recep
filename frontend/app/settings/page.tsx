@@ -123,10 +123,8 @@ function AssistantTab() {
           language: assistant.language || 'es',
           personality: assistant.personality || 'professional',
           system_prompt: assistant.system_prompt || '',
+          custom_info: assistant.custom_info || company?.custom_info || '',
         }));
-      }
-      if (company?.custom_info) {
-        setForm(prev => ({ ...prev, custom_info: company.custom_info }));
       }
     })
     .catch(() => {})
@@ -140,8 +138,8 @@ function AssistantTab() {
         name: form.name, gender: form.gender, voice_id: form.voice_id,
         language: form.language, personality: form.personality,
         system_prompt: form.system_prompt,
+        custom_info: form.custom_info,
       });
-      await api.onboarding.saveCompany({ custom_info: form.custom_info });
       toast.success('Recepcionista actualizada correctamente');
     } catch (err: any) {
       toast.error(err.message || 'Error al guardar');
