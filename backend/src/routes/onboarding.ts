@@ -198,6 +198,10 @@ router.post('/channels', async (req: AuthRequest, res: Response) => {
       success: true,
       message: 'Canales activados',
       phoneNumber: company.phone,
+      whatsappNumber: process.env.TWILIO_WHATSAPP_NUMBER ? process.env.TWILIO_WHATSAPP_NUMBER.replace('whatsapp:', '') : null,
+      whatsappInstructions: process.env.TWILIO_WHATSAPP_NUMBER
+        ? `Tus clientes pueden escribir al ${process.env.TWILIO_WHATSAPP_NUMBER.replace('whatsapp:', '')} en WhatsApp para ser atendidos por la IA.`
+        : null,
     });
   } catch (err) {
     console.error('[onboarding/channels] Error:', err);
