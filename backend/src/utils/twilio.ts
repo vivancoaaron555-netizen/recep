@@ -27,3 +27,17 @@ export async function sendSMS(to: string, message: string): Promise<boolean> {
 export function generateCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
+
+export async function buyNumber(areaCode: string): Promise<{ phoneNumber: string; sid: string }> {
+  try {
+    const incomingNumber = await client.incomingPhoneNumbers.create({
+      areaCode,
+      voiceUrl: process.env.VAPI_VOICE_URL || 'https://api.vapi.ai/webhook',
+      voiceMethod: 'POST',
+    });
+    return { phoneNumber: incomingNumber.phoneNumber, sid: incomingNumber.sid };
+  } catch (err) {
+    console.error('[twilio/buyNumber] Error:', err);
+    throw err;
+  }
+}

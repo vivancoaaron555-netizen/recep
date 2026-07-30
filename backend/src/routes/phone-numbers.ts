@@ -1,12 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { supabase } from '../utils/supabase';
-import { buyPhoneNumber, listPhoneNumbers } from '../utils/vapi';
+import { importPhoneNumber } from '../utils/vapi';
+import { buyNumber } from '../utils/twilio';
 
 const router = Router();
 
 /**
  * POST /api/phone-numbers/buy
- * Compra un número en Vapi y lo asigna a la compañía del usuario autenticado
+ * Compra un número en Twilio, lo importa a Vapi y lo asigna a la compañía
  */
 router.post('/buy', async (req: Request, res: Response) => {
   try {
@@ -34,16 +35,26 @@ router.post('/buy', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Ya tienes un número asignado' });
     }
 
-    // Buy number via Vapi
-    const vapiNumber: any = await buyPhoneNumber('901', 'US', company.name);
+    // 1. Buy number from Twilio
+    const twilioNumber = await buyNumber('901');
 
-    // Store in our database
+    // 2. Import to Vapi
+    let vapiId = '';
+    try {
+      const vapiNum: any = await importPhoneNumber(twilioNumber.phoneNumber, twilioNumber.sid, company.name);
+      vapiId = vapiNum.id;
+    } catch (vapiErr) {
+      // If Vapi import fails, still keep the Twilio number
+      console.error('[phone-numbers] Vapi import failed:', vapiErr);
+    }
+
+    // 3. Store in database
     const { data: phoneRecord, error: dbError } = await supabase
       .from('phone_numbers')
       .insert({
         company_id: company.id,
-        twilio_number: vapiNumber.number || vapiNumber.id,
-        twilio_sid: vapiNumber.id,
+        twilio_number: twilioNumber.phoneNumber,
+        twilio_sid: twilioNumber.sid,
         friendly_name: company.name,
         active: true,
       })
@@ -54,7 +65,7 @@ router.post('/buy', async (req: Request, res: Response) => {
 
     return res.json({
       success: true,
-      phoneNumber: phoneRecord?.twilio_number || vapiNumber.number,
+      phoneNumber: twilioNumber.phoneNumber,
     });
   } catch (err: any) {
     console.error('[phone-numbers/buy] Error:', err);

@@ -7,20 +7,20 @@ function getHeaders() {
   };
 }
 
-export async function buyPhoneNumber(areaCode = '901', country = 'US', name = '') {
+export async function importPhoneNumber(number: string, twilioSid: string, name = '') {
   const res = await fetch(`${VAPI_BASE}/phone-number`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify({
       provider: 'twilio',
-      areaCode,
-      country,
+      number,
+      twilioPhoneNumberSid: twilioSid,
       name,
     }),
   });
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Vapi buy number failed (${res.status}): ${err}`);
+    throw new Error(`Vapi import number failed (${res.status}): ${err}`);
   }
   return res.json();
 }

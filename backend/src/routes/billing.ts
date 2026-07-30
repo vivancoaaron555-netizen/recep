@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import Stripe from 'stripe';
 import { supabase } from '../utils/supabase';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { buyNumber } from '../utils/twilio';
+import { importPhoneNumber } from '../utils/vapi';
 
 const router = Router();
 
@@ -157,6 +159,13 @@ router.post('/webhook', async (req: Request, res: Response) => {
               current_period_end: new Date(stripeSub.current_period_end * 1000).toISOString(),
             })
             .eq('user_id', userId);
+
+          // If subscription is active (trial or paid), buy a dedicated number
+          if (stripeSub.status === 'active' || stripeSub.status === 'trialing') {
+            buyDedicatedNumber(userId).catch(e =>
+              console.error('[billing] Failed to buy number for user:', userId, e)
+            );
+          }
         }
         break;
       }
@@ -235,3 +244,49 @@ router.post('/webhook', async (req: Request, res: Response) => {
 });
 
 export default router;
+
+// ─── Helper: Buy dedicated number for a paying user ─────────────────────────
+async function buyDedicatedNumber(userId: string) {
+  const { data: company } = await supabase
+    .from('companies')
+    .select('id, name')
+    .eq('user_id', userId)
+    .single();
+
+  if (!company) {
+    console.warn('[billing] No company found for user:', userId);
+    return;
+  }
+
+  // Check if already has a number
+  const { data: existing } = await supabase
+    .from('phone_numbers')
+    .select('id')
+    .eq('company_id', company.id)
+    .eq('active', true)
+    .single();
+
+  if (existing) {
+    console.log('[billing] User already has a number');
+    return;
+  }
+
+  try {
+    const twilioNumber = await buyNumber('901');
+    try {
+      await importPhoneNumber(twilioNumber.phoneNumber, twilioNumber.sid, company.name);
+    } catch (vapiErr) {
+      console.error('[billing] Vapi import failed:', vapiErr);
+    }
+    await supabase.from('phone_numbers').insert({
+      company_id: company.id,
+      twilio_number: twilioNumber.phoneNumber,
+      twilio_sid: twilioNumber.sid,
+      friendly_name: company.name,
+      active: true,
+    });
+    console.log(`[billing] Number ${twilioNumber.phoneNumber} assigned to ${company.name}`);
+  } catch (err) {
+    console.error('[billing] Failed to buy number:', err);
+  }
+}
