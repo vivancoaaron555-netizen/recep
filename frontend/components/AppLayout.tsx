@@ -8,7 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bot, LayoutDashboard, Phone, Calendar, Settings,
   LogOut, Menu, X, Shield, Bell, ChevronDown,
-  Building2, User, Check, ExternalLink, Clock, CalendarDays
+  Building2, User, Check, ExternalLink, Clock, CalendarDays,
+  Timer, CreditCard, AlertTriangle
 } from 'lucide-react';
 import { api, setApiToken } from '@/lib/api';
 import { toast } from 'sonner';
@@ -100,6 +101,78 @@ export function AppLayout({ children }: AppLayoutProps) {
   const handleLogout = () => {
     signOut({ callbackUrl: '/login' });
     toast.success('Sesión cerrada');
+  };
+
+  // ── Trial countdown ─────────────────────────────────────────────────────────
+  const [trialDaysLeft, setTrialDaysLeft] = useState<number | null>(null);
+  const [trialExpired, setTrialExpired] = useState(false);
+
+  useEffect(() => {
+    if (!subscription || subscription.status !== 'trialing' || !subscription.current_period_end) return;
+    const end = new Date(subscription.current_period_end).getTime();
+    const now = Date.now();
+    const days = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+    setTrialDaysLeft(Math.max(days, 0));
+    setTrialExpired(days <= 0);
+
+    const interval = setInterval(() => {
+      const remaining = Math.ceil((end - Date.now()) / (1000 * 60 * 60 * 24));
+      setTrialDaysLeft(Math.max(remaining, 0));
+      setTrialExpired(remaining <= 0);
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [subscription]);
+
+  const handleUpgrade = async () => {
+    try {
+      const { url } = await api.billing.createCheckout('basic');
+      window.location.href = url;
+    } catch (err: any) {
+      toast.error(err.message || 'Error al iniciar pago');
+    }
+  };
+
+  const TrialBanner = () => {
+    if (trialExpired) {
+      return (
+        <div className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/30 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-sm">Tu prueba gratuita terminó</p>
+              <p className="text-xs text-muted-foreground">Para continuar usando tu recepcionista, activa tu plan.</p>
+            </div>
+          </div>
+          <button onClick={handleUpgrade} className="btn-primary text-sm">
+            <CreditCard className="w-4 h-4" /> Activar plan · $99/mes
+          </button>
+        </div>
+      );
+    }
+
+    if (trialDaysLeft !== null && trialDaysLeft > 0) {
+      return (
+        <div className="mb-6 p-4 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <Timer className="w-5 h-5 text-primary flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-sm">
+                Prueba gratis: {trialDaysLeft} {trialDaysLeft === 1 ? 'día' : 'días'} restantes
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Cuando termine, podrás activar tu plan para seguir usando tu recepcionista.
+              </p>
+            </div>
+          </div>
+          <button onClick={handleUpgrade} className="btn-ghost text-sm text-primary border border-primary/30">
+            <CreditCard className="w-4 h-4" /> Activar plan
+          </button>
+        </div>
+      );
+    }
+
+    return null;
   };
 
   const SidebarContent = () => (
@@ -307,6 +380,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
         {/* Page content */}
         <main className="flex-1 p-6">
+          <TrialBanner />
           {children}
         </main>
       </div>

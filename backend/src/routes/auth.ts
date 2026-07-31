@@ -69,10 +69,12 @@ router.post('/google', async (req: Request, res: Response) => {
         return res.status(500).json({ error: 'Failed to create user' });
       }
 
+      const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
       await supabase.from('subscriptions').insert({
         user_id: created.id,
         plan: 'basic',
         status: 'trialing',
+        current_period_end: trialEnd,
       });
 
       user = created;
@@ -146,10 +148,12 @@ router.post('/register', async (req: Request, res: Response) => {
     }
 
     // Create initial subscription record (trialing)
+    const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     await supabase.from('subscriptions').insert({
       user_id: user.id,
       plan: body.plan,
       status: 'trialing',
+      current_period_end: trialEnd,
     });
 
     // Generate JWT

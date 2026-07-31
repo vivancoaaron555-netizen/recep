@@ -73,6 +73,25 @@ router.post('/webhook', async (req: Request, res: Response) => {
         }
       }
 
+      // If no dedicated number found (shared/trial number), look up by caller's phone
+      if (!company) {
+        const { data: c } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('phone', callerNumber)
+          .maybeSingle();
+        if (c) {
+          company = c;
+          const { data: a } = await supabase
+            .from('assistants')
+            .select('*')
+            .eq('company_id', company.id)
+            .eq('active', true)
+            .single();
+          assistant = a;
+        }
+      }
+
       if (!company || !assistant) {
         // Fallback generic assistant
         return res.json({
@@ -120,6 +139,9 @@ router.post('/webhook', async (req: Request, res: Response) => {
           maxDurationSeconds: 600,
           backgroundSound: 'office',
           backgroundDenoisingEnabled: true,
+          metadata: {
+            companyId: company.id,
+          },
         },
       });
     }
@@ -130,7 +152,17 @@ router.post('/webhook', async (req: Request, res: Response) => {
       const params = body?.message?.functionCall?.parameters || {};
 
       if (functionName === 'createAppointment') {
-        const companyId = body?.message?.call?.metadata?.companyId;
+        const callerPhone = body?.message?.call?.customer?.number || '';
+        let companyId = body?.message?.call?.metadata?.companyId;
+
+        if (!companyId && callerPhone) {
+          const { data: companyByPhone } = await supabase
+            .from('companies')
+            .select('id')
+            .eq('phone', callerPhone)
+            .maybeSingle();
+          if (companyByPhone) companyId = companyByPhone.id;
+        }
 
         if (companyId && params.name && params.phone && params.service && params.date) {
           const { data: appointment } = await supabase
@@ -178,8 +210,17 @@ router.post('/webhook', async (req: Request, res: Response) => {
       const phoneFrom = call?.customer?.number || 'unknown';
       const recordingUrl = call?.artifact?.recordingUrl || call?.recordingUrl || '';
 
-      // Find company by phone number or metadata
-      const companyId = call?.metadata?.companyId;
+      // Find company by metadata or caller's phone number
+      let companyId = call?.metadata?.companyId;
+
+      if (!companyId) {
+        const { data: companyByPhone } = await supabase
+          .from('companies')
+          .select('id')
+          .eq('phone', phoneFrom)
+          .maybeSingle();
+        if (companyByPhone) companyId = companyByPhone.id;
+      }
 
       if (companyId && transcript) {
         // Generate AI summary
