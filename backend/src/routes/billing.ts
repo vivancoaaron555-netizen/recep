@@ -243,7 +243,44 @@ router.post('/webhook', async (req: Request, res: Response) => {
   }
 });
 
-export default router;
+// ─── POST /api/billing/trial-start ────────────────────────────────────────────
+router.post('/trial-start', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const now = new Date();
+    const trialEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    // Check if subscription already exists
+    const { data: existing } = await supabase
+      .from('subscriptions')
+      .select('id')
+      .eq('user_id', req.user!.userId)
+      .single();
+
+    if (existing) {
+      return res.json({ success: true, message: 'Trial ya activo' });
+    }
+
+    const { error } = await supabase
+      .from('subscriptions')
+      .insert({
+        user_id: req.user!.userId,
+        plan: 'basic',
+        status: 'trialing',
+        current_period_start: now.toISOString(),
+        current_period_end: trialEnd.toISOString(),
+      });
+
+    if (error) {
+      console.error('[billing/trial-start] Error:', error);
+      return res.status(500).json({ error: 'Failed to start trial' });
+    }
+
+    return res.json({ success: true, message: 'Trial iniciado — 7 días gratis' });
+  } catch (err) {
+    console.error('[billing/trial-start] Error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // ─── Helper: Buy dedicated number for a paying user ─────────────────────────
 async function buyDedicatedNumber(userId: string) {
@@ -290,3 +327,5 @@ async function buyDedicatedNumber(userId: string) {
     console.error('[billing] Failed to buy number:', err);
   }
 }
+
+export default router;

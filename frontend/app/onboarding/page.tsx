@@ -540,6 +540,7 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
 // ─── Step 4: Payment ──────────────────────────────────────────────────────────
 function Step4({ router }: { router: ReturnType<typeof useRouter> }) {
   const [loading, setLoading] = useState(false);
+  const [skipLoading, setSkipLoading] = useState(false);
 
   const handlePayment = async () => {
     setLoading(true);
@@ -550,6 +551,19 @@ function Step4({ router }: { router: ReturnType<typeof useRouter> }) {
       toast.error(err.message || 'Error al iniciar pago');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSkip = async () => {
+    setSkipLoading(true);
+    try {
+      await api.billing.startTrial();
+      toast.success('¡Prueba gratis activada!');
+      router.push('/dashboard');
+    } catch (err: any) {
+      toast.error(err.message || 'Error al iniciar prueba');
+    } finally {
+      setSkipLoading(false);
     }
   };
 
@@ -581,6 +595,19 @@ function Step4({ router }: { router: ReturnType<typeof useRouter> }) {
 
       <button onClick={handlePayment} disabled={loading} className="btn-primary w-full justify-center">
         {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo a pago...</> : <>Configurar método de pago <ChevronRight className="w-4 h-4" /></>}
+      </button>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-card px-2 text-muted-foreground">o</span>
+        </div>
+      </div>
+
+      <button onClick={handleSkip} disabled={skipLoading} className="btn-ghost w-full justify-center text-sm">
+        {skipLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Empezar prueba gratis sin tarjeta'}
       </button>
     </div>
   );

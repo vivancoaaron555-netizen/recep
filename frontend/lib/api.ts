@@ -76,6 +76,9 @@ export const api = {
         body: JSON.stringify({ plan }),
       }),
 
+    startTrial: () =>
+      request<{ success: boolean; message: string }>('/api/billing/trial-start', { method: 'POST' }),
+
     openPortal: () =>
       request<{ url: string }>('/api/billing/portal', { method: 'POST' }),
   },
