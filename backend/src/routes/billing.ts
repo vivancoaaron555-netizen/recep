@@ -4,6 +4,7 @@ import { supabase } from '../utils/supabase';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { buyNumber } from '../utils/twilio';
 import { importPhoneNumber } from '../utils/vapi';
+import { getCompanyPlan, countActiveNumbers } from '../utils/plans';
 
 const router = Router();
 
@@ -292,6 +293,19 @@ async function buyDedicatedNumber(userId: string) {
 
   if (!company) {
     console.warn('[billing] No company found for user:', userId);
+    return;
+  }
+
+  // Check plan number limit before buying
+  const planInfo = await getCompanyPlan(company.id);
+  if (!planInfo?.active) {
+    console.warn('[billing] Plan not active, skipping number buy for:', userId);
+    return;
+  }
+
+  const usedNumbers = await countActiveNumbers(company.id);
+  if (usedNumbers >= planInfo.limits.numbers) {
+    console.warn(`[billing] Number limit reached for plan ${planInfo.plan} (${usedNumbers}/${planInfo.limits.numbers})`);
     return;
   }
 

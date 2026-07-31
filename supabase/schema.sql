@@ -28,6 +28,20 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- ⚡ MIGRATION (July 2026): Plan usage tracking (whatsapp messages per month)
+-- CREATE TABLE IF NOT EXISTS whatsapp_messages (
+--   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+--   company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+--   phone_from TEXT,
+--   direction TEXT NOT NULL DEFAULT 'inbound', -- inbound | outbound
+--   content TEXT,
+--   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_whatsapp_messages_company ON whatsapp_messages(company_id, created_at);
+-- ALTER TABLE whatsapp_messages ENABLE ROW LEVEL SECURITY;
+-- CREATE POLICY "Service role has full access to whatsapp_messages"
+--   ON whatsapp_messages FOR ALL USING (true);
+
 -- ─────────────────────────────────────────────
 -- TABLE: users
 -- ─────────────────────────────────────────────

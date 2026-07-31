@@ -20,6 +20,80 @@ interface Stats {
   appointmentsMonth: number;
   minutesMonth: number;
   whatsappMonth: number;
+  plan?: string;
+  status?: string;
+  active?: boolean;
+  limits?: { calls: number; whatsapp: number; numbers: number };
+}
+
+const PLAN_LABELS: Record<string, string> = {
+  basic: 'Basic',
+  pro: 'Pro',
+  business: 'Business',
+  trial: 'Prueba',
+};
+
+function UsageSection({ stats }: { stats: Stats }) {
+  const limits = stats.limits;
+  if (!limits) return null;
+
+  const fmtLimit = (n: number) => (n === Infinity ? '∞' : n);
+  const pct = (used: number, limit: number) =>
+    limit === Infinity ? null : Math.min(100, Math.round((used / limit) * 100));
+
+  const callsPct = pct(stats.callsMonth, limits.calls);
+  const whatsappPct = pct(stats.whatsappMonth, limits.whatsapp);
+  const numbersPct = pct(0, limits.numbers);
+  const reachedLimit = (callsPct !== null && callsPct >= 100) || (whatsappPct !== null && whatsappPct >= 100);
+
+  const barColor = (p: number | null) => (p !== null && p >= 90 ? 'bg-destructive' : 'bg-primary');
+
+  return (
+    <div className="card">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-semibold">Uso de tu plan</h2>
+        <span className="badge-primary">{PLAN_LABELS[stats.plan || 'basic'] || stats.plan}</span>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <div className="flex items-center justify-between text-sm mb-1">
+            <span className="text-muted-foreground">Llamadas del mes</span>
+            <span className="font-medium">{stats.callsMonth} / {fmtLimit(limits.calls)}</span>
+          </div>
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div className={`h-full rounded-full ${barColor(callsPct)}`} style={{ width: `${callsPct ?? 100}%` }} />
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between text-sm mb-1">
+            <span className="text-muted-foreground">WhatsApp (mensajes)</span>
+            <span className="font-medium">{stats.whatsappMonth} / {fmtLimit(limits.whatsapp)}</span>
+          </div>
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div className={`h-full rounded-full ${barColor(whatsappPct)}`} style={{ width: `${whatsappPct ?? 100}%` }} />
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between text-sm mb-1">
+            <span className="text-muted-foreground">Números dedicados</span>
+            <span className="font-medium">0 / {fmtLimit(limits.numbers)}</span>
+          </div>
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div className={`h-full rounded-full ${barColor(numbersPct)}`} style={{ width: `${numbersPct ?? 100}%` }} />
+          </div>
+        </div>
+      </div>
+
+      {reachedLimit && (
+        <a href="/settings" className="btn-primary w-full justify-center mt-4">
+          <AlertCircle className="w-4 h-4" /> Has llegado a tu límite — Mejorar plan
+        </a>
+      )}
+    </div>
+  );
 }
 
 function StatCard({
@@ -297,6 +371,9 @@ export default function DashboardPage() {
 
           {/* Right column - 1/3 */}
           <div className="space-y-6">
+            {/* Plan usage */}
+            {stats && <UsageSection stats={stats} />}
+
             {/* Upcoming Appointments */}
             <div className="card">
               <div className="flex items-center justify-between mb-4">

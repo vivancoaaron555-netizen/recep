@@ -5,8 +5,34 @@ import { generateResponse, generateCallSummary, Message } from '../utils/groq';
 import { sendNewAppointmentEmail } from '../utils/email';
 import { createNotification } from './notifications';
 import { isCompanyAccessActive } from '../utils/access';
+import { getCompanyPlan, countCallsThisMonth } from '../utils/plans';
 
 const router = Router();
+
+/**
+ * Fallback assistant used when a company has no access or reached its plan limit.
+ */
+function unavailableAssistant(companyName: string) {
+  return {
+    assistant: {
+      name: 'Sofia',
+      model: {
+        provider: 'groq',
+        model: 'llama-3.3-70b-versatile',
+        systemPrompt: `Eres Sofia, la recepcionista virtual de ${companyName}. El servicio de la empresa está actualmente inactivo porque la prueba gratuita terminó o el plan no está activo. Debes informar al cliente de forma amable y breve: "Lo sentimos, en este momento el servicio no está disponible. Por favor intenta de nuevo más tarde." No des más detalles. Responde siempre en español, en 1 o 2 frases cortas.`,
+        maxTokens: 100,
+        temperature: 0.5,
+      },
+      voice: {
+        provider: 'elevenlabs',
+        voiceId: 'g5CIjZEefAph4nQFVsP1',
+      },
+      language: 'es-ES',
+      silenceTimeoutSeconds: 5,
+      maxDurationSeconds: 60,
+    },
+  };
+}
 
 /**
  * POST /api/vapi/webhook
@@ -122,25 +148,16 @@ router.post('/webhook', async (req: Request, res: Response) => {
       // Check if the company still has access (trial expired / canceled)
       const hasAccess = await isCompanyAccessActive(company.id);
       if (!hasAccess) {
-        return res.json({
-          assistant: {
-            name: 'Sofia',
-            model: {
-              provider: 'groq',
-              model: 'llama-3.3-70b-versatile',
-              systemPrompt: `Eres Sofia, la recepcionista virtual de ${company.name}. El servicio de la empresa está actualmente inactivo porque la prueba gratuita terminó y el plan no está activo. Debes informar al cliente de forma amable y breve: "Lo sentimos, en este momento el servicio no está disponible. Por favor intenta de nuevo más tarde." No des más detalles. Responde siempre en español, en 1 o 2 frases cortas.`,
-              maxTokens: 100,
-              temperature: 0.5,
-            },
-            voice: {
-              provider: 'elevenlabs',
-              voiceId: 'g5CIjZEefAph4nQFVsP1',
-            },
-            language: 'es-ES',
-            silenceTimeoutSeconds: 5,
-            maxDurationSeconds: 60,
-          },
-        });
+        return res.json(unavailableAssistant(company.name));
+      }
+
+      // Check monthly call limit by plan
+      const planInfo = await getCompanyPlan(company.id);
+      if (planInfo?.active && planInfo.limits.calls !== Infinity) {
+        const used = await countCallsThisMonth(company.id);
+        if (used >= planInfo.limits.calls) {
+          return res.json(unavailableAssistant(company.name));
+        }
       }
 
       const systemPrompt = generateSystemPrompt(assistant, company);

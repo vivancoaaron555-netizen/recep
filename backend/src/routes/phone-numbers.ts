@@ -3,6 +3,7 @@ import { supabase } from '../utils/supabase';
 import { importPhoneNumber } from '../utils/vapi';
 import { buyNumber } from '../utils/twilio';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { getCompanyPlan, countActiveNumbers } from '../utils/plans';
 
 const router = Router();
 
@@ -26,16 +27,17 @@ router.post('/buy', async (req: AuthRequest, res: Response) => {
 
     if (!company) return res.status(404).json({ error: 'Compañía no encontrada' });
 
-    // Check if company already has a number
-    const { data: existing } = await supabase
-      .from('phone_numbers')
-      .select('id')
-      .eq('company_id', company.id)
-      .eq('active', true)
-      .single();
+    // Check plan is active and number limit by plan
+    const planInfo = await getCompanyPlan(company.id);
+    if (!planInfo?.active) {
+      return res.status(403).json({ error: 'Activa tu plan para comprar números' });
+    }
 
-    if (existing) {
-      return res.status(400).json({ error: 'Ya tienes un número asignado' });
+    const usedNumbers = await countActiveNumbers(company.id);
+    if (usedNumbers >= planInfo.limits.numbers) {
+      return res.status(400).json({
+        error: `Tu plan (${planInfo.plan}) permite máximo ${planInfo.limits.numbers} número(s) activo(s)`,
+      });
     }
 
     // 1. Buy number from Twilio
@@ -111,7 +113,7 @@ router.get('/my', async (req: AuthRequest, res: Response) => {
 
 /**
  * POST /api/phone-numbers/release
- * Libera el número asignado (desactiva, no elimina)
+ * Libera un número asignado (desactiva). Si no se pasa `id`, libera todos.
  */
 router.post('/release', async (req: AuthRequest, res: Response) => {
   try {
@@ -125,11 +127,17 @@ router.post('/release', async (req: AuthRequest, res: Response) => {
 
     if (!company) return res.status(404).json({ error: 'Compañía no encontrada' });
 
-    await supabase
+    let query = supabase
       .from('phone_numbers')
       .update({ active: false })
       .eq('company_id', company.id)
       .eq('active', true);
+
+    if (req.body?.id) {
+      query = query.eq('id', req.body.id);
+    }
+
+    await query;
 
     return res.json({ success: true });
   } catch (err: any) {

@@ -6,6 +6,7 @@ import twilio from 'twilio';
 import { sendNewAppointmentEmail } from '../utils/email';
 import { createNotification } from './notifications';
 import { isCompanyAccessActive } from '../utils/access';
+import { getCompanyPlan, countWhatsAppThisMonth } from '../utils/plans';
 
 const router = Router();
 
@@ -94,6 +95,35 @@ router.post('/webhook', async (req: Request, res: Response) => {
       if (company && assistant) {
         // Get or create conversation history
         const phoneClean = from.replace('whatsapp:', '');
+
+        // Plan limit check: WhatsApp messages per month
+        const planInfo = await getCompanyPlan(companyId);
+        let limitBlocked = false;
+        if (planInfo?.active && planInfo.limits.whatsapp !== Infinity) {
+          const used = await countWhatsAppThisMonth(companyId);
+          if (used >= planInfo.limits.whatsapp) {
+            limitBlocked = true;
+            responseText = `Hola, gracias por escribirnos. ${company.name} ha alcanzado el límite de mensajes de su plan este mes. Por favor contacta con ellos por teléfono mientras tanto.`;
+          }
+        }
+
+        if (limitBlocked) {
+          const blockedLimitResponse = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Message>${responseText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</Message>
+</Response>`;
+          res.set('Content-Type', 'text/xml');
+          return res.send(blockedLimitResponse);
+        }
+
+        // Log inbound message for monthly usage counting
+        await supabase.from('whatsapp_messages').insert({
+          company_id: companyId,
+          phone_from: phoneClean,
+          direction: 'inbound',
+          content: body,
+        });
+
         const { data: conversation } = await supabase
           .from('whatsapp_conversations')
           .select('*')

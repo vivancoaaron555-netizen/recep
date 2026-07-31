@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { supabase } from '../utils/supabase';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { getCompanyPlan, PLAN_LIMITS } from '../utils/plans';
 
 const router = Router();
 
@@ -66,12 +67,16 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
     const totalSeconds = durationData?.reduce((acc, c) => acc + (c.duration_seconds || 0), 0) || 0;
     const totalMinutes = Math.round(totalSeconds / 60);
 
-    // WhatsApp messages this month
+    // WhatsApp messages this month (fair counting by message)
     const { count: whatsappCount } = await supabase
-      .from('whatsapp_conversations')
+      .from('whatsapp_messages')
       .select('*', { count: 'exact', head: true })
       .eq('company_id', company.id)
       .gte('created_at', thisMonth);
+
+    // Plan limits + usage
+    const planInfo = await getCompanyPlan(company.id);
+    const limits = planInfo?.limits || PLAN_LIMITS.basic;
 
     return res.json({
       callsToday: callsToday || 0,
@@ -80,6 +85,14 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
       appointmentsMonth: appointmentsMonth || 0,
       minutesMonth: totalMinutes,
       whatsappMonth: whatsappCount || 0,
+      plan: planInfo?.plan || 'basic',
+      status: planInfo?.status || '',
+      active: planInfo?.active ?? true,
+      limits: {
+        calls: limits.calls,
+        whatsapp: limits.whatsapp,
+        numbers: limits.numbers,
+      },
     });
   } catch (err) {
     console.error('[dashboard/stats] Error:', err);
