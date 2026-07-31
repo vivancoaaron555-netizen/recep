@@ -10,26 +10,31 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: '#0a0a0f',
+        background: '#0d0011',
         foreground: '#f8fafc',
         primary: {
-          DEFAULT: '#2563eb',
-          foreground: '#ffffff',
-          hover: '#1d4ed8',
-          muted: '#1e3a8a',
+          DEFAULT: '#c084fc',
+          foreground: '#0d0011',
+          hover: '#a855f7',
+          muted: '#6d28d9',
+        },
+        secondary: {
+          DEFAULT: '#fbbf24',
+          foreground: '#0d0011',
+          hover: '#f59e0b',
         },
         card: {
-          DEFAULT: '#111118',
+          DEFAULT: '#14081c',
           foreground: '#f8fafc',
-          border: '#1e1e2e',
+          border: '#2a1733',
         },
         muted: {
-          DEFAULT: '#1e1e2e',
-          foreground: '#94a3b8',
+          DEFAULT: '#1f1129',
+          foreground: '#b8a6c9',
         },
         accent: {
-          DEFAULT: '#6366f1',
-          foreground: '#ffffff',
+          DEFAULT: '#ffffff',
+          foreground: '#0d0011',
         },
         destructive: {
           DEFAULT: '#ef4444',
@@ -40,12 +45,12 @@ const config: Config = {
           foreground: '#ffffff',
         },
         warning: {
-          DEFAULT: '#f59e0b',
-          foreground: '#ffffff',
+          DEFAULT: '#fbbf24',
+          foreground: '#0d0011',
         },
-        border: '#1e1e2e',
-        input: '#1e1e2e',
-        ring: '#2563eb',
+        border: '#2a1733',
+        input: '#2a1733',
+        ring: '#c084fc',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -76,8 +81,8 @@ const config: Config = {
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
         pulseGlow: {
-          '0%, 100%': { boxShadow: '0 0 20px rgba(37, 99, 235, 0.3)' },
-          '50%': { boxShadow: '0 0 40px rgba(37, 99, 235, 0.6)' },
+          '0%, 100%': { boxShadow: '0 0 20px rgba(192, 132, 252, 0.3)' },
+          '50%': { boxShadow: '0 0 40px rgba(192, 132, 252, 0.6)' },
         },
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
@@ -86,14 +91,14 @@ const config: Config = {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-hero': 'linear-gradient(135deg, #0a0a0f 0%, #0f1629 50%, #0a0a0f 100%)',
-        'gradient-card': 'linear-gradient(135deg, #111118 0%, #161625 100%)',
-        'gradient-primary': 'linear-gradient(135deg, #2563eb 0%, #6366f1 100%)',
-        'glow-border': 'linear-gradient(135deg, #2563eb, #6366f1, #2563eb)',
+        'gradient-hero': 'linear-gradient(135deg, #0d0011 0%, #1a0526 50%, #0d0011 100%)',
+        'gradient-card': 'linear-gradient(135deg, #14081c 0%, #1c0d26 100%)',
+        'gradient-primary': 'linear-gradient(135deg, #c084fc 0%, #fbbf24 100%)',
+        'glow-border': 'linear-gradient(135deg, #c084fc, #fbbf24, #c084fc)',
       },
       boxShadow: {
-        'glow': '0 0 30px rgba(37, 99, 235, 0.3)',
-        'glow-lg': '0 0 60px rgba(37, 99, 235, 0.4)',
+        'glow': '0 0 30px rgba(192, 132, 252, 0.25)',
+        'glow-lg': '0 0 60px rgba(192, 132, 252, 0.35)',
         'card': '0 4px 24px rgba(0, 0, 0, 0.4)',
         'card-hover': '0 8px 40px rgba(0, 0, 0, 0.6)',
       },

@@ -218,37 +218,37 @@ const features = [
     icon: Phone,
     title: 'Llamadas 24/7',
     description: 'Voz natural con IA. Atiende cada llamada de tu negocio con la misma calidad que un humano.',
-    color: 'from-blue-500 to-indigo-600',
+    color: 'from-purple-500 to-violet-600',
   },
   {
     icon: MessageCircle,
     title: 'WhatsApp Automático',
     description: 'Responde mensajes al instante. Mantiene contexto de la conversación y agenda citas sin fricción.',
-    color: 'from-green-500 to-emerald-600',
+    color: 'from-amber-400 to-yellow-500',
   },
   {
     icon: Calendar,
     title: 'Citas Automáticas',
     description: 'La IA recopila datos del cliente y agenda citas en tu calendario. Sin pérdida de leads.',
-    color: 'from-purple-500 to-violet-600',
+    color: 'from-fuchsia-500 to-purple-600',
   },
   {
     icon: Clock,
     title: 'Disponible Siempre',
     description: 'Fines de semana, festivos, madrugadas. Tu negocio nunca pierde una oportunidad.',
-    color: 'from-orange-500 to-amber-600',
+    color: 'from-amber-500 to-orange-500',
   },
   {
     icon: BarChart3,
     title: 'Analytics en Tiempo Real',
     description: 'Dashboard completo con llamadas, transcripciones, citas y métricas de rendimiento.',
-    color: 'from-pink-500 to-rose-600',
+    color: 'from-purple-400 to-fuchsia-500',
   },
   {
     icon: Globe,
     title: 'Multi-idioma',
     description: 'Configura el idioma de tu recepcionista. Español, inglés y más.',
-    color: 'from-cyan-500 to-blue-600',
+    color: 'from-violet-400 to-purple-500',
   },
 ];
 

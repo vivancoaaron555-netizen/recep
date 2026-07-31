@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const viewport: Viewport = {
-  themeColor: '#0a0a0f',
+  themeColor: '#0d0011',
 };
 
 export const metadata: Metadata = {
@@ -47,8 +47,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           position="top-right"
           toastOptions={{
             style: {
-              background: '#111118',
-              border: '1px solid #1e1e2e',
+              background: '#14081c',
+              border: '1px solid #2a1733',
               color: '#f8fafc',
             },
           }}

@@ -37,7 +37,7 @@ function AdminStatCard({ title, value, icon: Icon, color, subtitle }: {
 
 const STAGE_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string }> = {
   registered: { label: 'Registrados', icon: UserPlus, color: 'text-muted-foreground' },
-  company: { label: 'Empresa creada', icon: Building2, color: 'text-blue-500' },
+  company: { label: 'Empresa creada', icon: Building2, color: 'text-purple-400' },
   assistant: { label: 'Recepcionista lista', icon: Bot, color: 'text-primary' },
   phone_verified: { label: 'Teléfono verificado', icon: Phone, color: 'text-green-500' },
   onboarding_complete: { label: 'Onboarding completo', icon: CheckCircle, color: 'text-success' },
