@@ -1,18 +1,21 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { supabase } from '../utils/supabase';
 import { importPhoneNumber } from '../utils/vapi';
 import { buyNumber } from '../utils/twilio';
+import { authMiddleware, AuthRequest } from '../middleware/auth';
 
 const router = Router();
+
+// All routes require auth
+router.use(authMiddleware);
 
 /**
  * POST /api/phone-numbers/buy
  * Compra un número en Twilio, lo importa a Vapi y lo asigna a la compañía
  */
-router.post('/buy', async (req: Request, res: Response) => {
+router.post('/buy', async (req: AuthRequest, res: Response) => {
   try {
-    const userId = (req as any).user?.id;
-    if (!userId) return res.status(401).json({ error: 'No autenticado' });
+    const userId = req.user!.userId;
 
     // Get user's company
     const { data: company } = await supabase
@@ -77,10 +80,9 @@ router.post('/buy', async (req: Request, res: Response) => {
  * GET /api/phone-numbers/my
  * Devuelve el número asignado a la compañía del usuario autenticado
  */
-router.get('/my', async (req: Request, res: Response) => {
+router.get('/my', async (req: AuthRequest, res: Response) => {
   try {
-    const userId = (req as any).user?.id;
-    if (!userId) return res.status(401).json({ error: 'No autenticado' });
+    const userId = req.user!.userId;
 
     const { data: company } = await supabase
       .from('companies')
@@ -111,10 +113,9 @@ router.get('/my', async (req: Request, res: Response) => {
  * POST /api/phone-numbers/release
  * Libera el número asignado (desactiva, no elimina)
  */
-router.post('/release', async (req: Request, res: Response) => {
+router.post('/release', async (req: AuthRequest, res: Response) => {
   try {
-    const userId = (req as any).user?.id;
-    if (!userId) return res.status(401).json({ error: 'No autenticado' });
+    const userId = req.user!.userId;
 
     const { data: company } = await supabase
       .from('companies')
