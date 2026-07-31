@@ -88,7 +88,7 @@ function Hero() {
       {/* Background glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] rounded-full bg-accent/5 blur-3xl" />
+        <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] rounded-full bg-secondary/15 blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] rounded-full bg-primary/8 blur-3xl" />
       </div>
 
@@ -123,7 +123,7 @@ function Hero() {
           <div className="flex flex-col items-center gap-4 mb-16">
             <div className="relative">
               <div className="absolute -top-8 -right-8 rotate-12">
-                <div className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-glow whitespace-nowrap">
+                <div className="bg-secondary text-secondary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-glow whitespace-nowrap">
                   ← 7 días gratis
                 </div>
               </div>
@@ -161,7 +161,7 @@ function Hero() {
               {[
                 { label: 'Llamadas hoy', value: '24', icon: Phone, color: 'text-primary' },
                 { label: 'Citas creadas', value: '8', icon: Calendar, color: 'text-success' },
-                { label: 'WhatsApp', value: '47', icon: MessageCircle, color: 'text-accent' },
+                { label: 'WhatsApp', value: '47', icon: MessageCircle, color: 'text-secondary' },
                 { label: 'Minutos activo', value: '386', icon: Clock, color: 'text-warning' },
               ].map((stat) => (
                 <div key={stat.label} className="bg-muted/40 rounded-lg p-4 text-left">
@@ -398,7 +398,7 @@ const plans = [
     name: 'Business',
     price: 349,
     description: 'Para empresas',
-    color: 'border-accent/50',
+    color: 'border-secondary/50',
     badge: 'Empresas',
     features: [
       'Llamadas ilimitadas',
@@ -575,7 +575,7 @@ function CTASection() {
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <div className="absolute -top-8 -right-8 rotate-12">
-                <div className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-glow whitespace-nowrap">
+                <div className="bg-secondary text-secondary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-glow whitespace-nowrap">
                   ← 7 días gratis
                 </div>
               </div>

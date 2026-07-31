@@ -6,10 +6,10 @@
 
 @layer base {
   :root {
-    --background: 280 100% 3%;
-    --foreground: 210 40% 98%;
-    --primary: 270 95% 75%;
-    --border: 280 35% 15%;
+    --background: 270 60% 99%;
+    --foreground: 270 40% 14%;
+    --primary: 262 83% 58%;
+    --border: 275 100% 94%;
     --radius: 12px;
   }
 
@@ -24,8 +24,8 @@
   }
 
   body {
-    background-color: #0d0011;
-    color: #f8fafc;
+    background-color: #faf7ff;
+    color: #241034;
     font-family: 'Inter', system-ui, sans-serif;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -33,8 +33,8 @@
   }
 
   ::selection {
-    background: rgba(192, 132, 252, 0.3);
-    color: #f8fafc;
+    background: rgba(251, 191, 36, 0.4);
+    color: #241034;
   }
 
   ::-webkit-scrollbar {
@@ -43,16 +43,16 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #0d0011;
+    background: #faf7ff;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #2a1733;
+    background: #e0c8f7;
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #c084fc;
+    background: #fbbf24;
   }
 }
 
@@ -63,7 +63,7 @@
   }
 
   .btn-primary {
-    @apply btn bg-primary text-white hover:bg-primary-hover shadow-glow hover:shadow-glow-lg active:scale-95;
+    @apply btn bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-400 text-secondary-foreground hover:from-amber-400 hover:via-amber-500 hover:to-yellow-500 shadow-glow hover:shadow-glow-lg active:scale-95;
   }
 
   .btn-secondary {
@@ -79,7 +79,7 @@
   }
 
   .btn-outline {
-    @apply btn border border-primary/50 text-primary hover:bg-primary/10;
+    @apply btn border-2 border-secondary/70 text-primary hover:bg-secondary/10;
   }
 
   .btn-lg {
@@ -96,7 +96,7 @@
   }
 
   .card-hover {
-    @apply card transition-all duration-300 hover:border-primary/30 hover:shadow-glow hover:-translate-y-0.5;
+    @apply card transition-all duration-300 hover:border-secondary/50 hover:shadow-glow hover:-translate-y-0.5;
   }
 
   .glass {
@@ -130,7 +130,7 @@
   }
 
   .badge-primary {
-    @apply badge bg-primary/15 text-primary border border-primary/30;
+    @apply badge bg-amber-100 text-amber-700 border border-amber-300;
   }
 
   .badge-muted {
@@ -139,7 +139,7 @@
 
   /* ── Gradient Text ───────────────────────────────────── */
   .gradient-text {
-    @apply bg-gradient-to-r from-purple-300 via-fuchsia-300 to-amber-300 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-amber-500 via-fuchsia-500 to-purple-600 bg-clip-text text-transparent;
   }
 
   /* ── Section ─────────────────────────────────────────── */

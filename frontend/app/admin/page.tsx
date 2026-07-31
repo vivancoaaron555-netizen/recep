@@ -42,7 +42,7 @@ const STAGE_CONFIG: Record<string, { label: string; icon: React.ElementType; col
   phone_verified: { label: 'Teléfono verificado', icon: Phone, color: 'text-green-500' },
   onboarding_complete: { label: 'Onboarding completo', icon: CheckCircle, color: 'text-success' },
   trialing: { label: 'En prueba gratis', icon: Clock, color: 'text-warning' },
-  active: { label: 'Suscripción activa', icon: CreditCard, color: 'text-accent' },
+  active: { label: 'Suscripción activa', icon: CreditCard, color: 'text-secondary' },
 };
 
 function StageBadge({ stage }: { stage: string }) {
@@ -158,7 +158,7 @@ export default function AdminPage() {
               <AdminStatCard title="Empresas totales" value={loading ? '—' : stats?.totalCompanies ?? 0}
                 icon={Building2} color="bg-primary/15 text-primary" />
               <AdminStatCard title="Usuarios totales" value={loading ? '—' : stats?.totalUsers ?? 0}
-                icon={Users} color="bg-accent/15 text-accent" />
+                icon={Users} color="bg-secondary/15 text-secondary" />
               <AdminStatCard title="Llamadas totales" value={loading ? '—' : stats?.totalCalls ?? 0}
                 icon={Phone} color="bg-success/15 text-success" />
               <AdminStatCard title="Citas totales" value={loading ? '—' : stats?.totalAppointments ?? 0}
@@ -176,7 +176,7 @@ export default function AdminPage() {
                 <div className="grid grid-cols-3 gap-4">
                   {[
                     { plan: 'basic', label: 'Basic', price: '$99', color: 'text-primary' },
-                    { plan: 'pro', label: 'Pro', price: '$199', color: 'text-accent' },
+                    { plan: 'pro', label: 'Pro', price: '$199', color: 'text-secondary' },
                     { plan: 'business', label: 'Business', price: '$349', color: 'text-warning' },
                   ].map((p) => (
                     <div key={p.plan} className="text-center p-4 rounded-xl bg-muted/30 border border-border">

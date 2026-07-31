@@ -140,9 +140,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   const TrialBanner = () => {
     if (trialExpired) {
       return (
-        <div className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/30 flex items-center justify-between gap-4 flex-wrap">
+        <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
             <div>
               <p className="font-semibold text-sm">Tu prueba gratuita terminó</p>
               <p className="text-xs text-muted-foreground">Tu recepcionista está pausada. Activa tu plan para continuar.</p>
@@ -157,9 +157,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
     if (trialDaysLeft !== null && trialDaysLeft > 0) {
       return (
-        <div className="mb-6 p-4 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-between gap-4 flex-wrap">
+        <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <Timer className="w-5 h-5 text-primary flex-shrink-0" />
+            <Timer className="w-5 h-5 text-amber-600 flex-shrink-0" />
             <div>
               <p className="font-semibold text-sm">
                 Prueba gratis: {trialDaysLeft} {trialDaysLeft === 1 ? 'día' : 'días'} restantes
@@ -169,7 +169,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               </p>
             </div>
           </div>
-          <button onClick={handleUpgrade} className="btn-ghost text-sm text-primary border border-primary/30">
+          <button onClick={handleUpgrade} className="btn-ghost text-sm text-amber-700 border border-amber-300">
             <CreditCard className="w-4 h-4" /> Activar plan
           </button>
         </div>

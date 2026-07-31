@@ -494,8 +494,8 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
         {/* Web Widget */}
         <div className="card border-accent/20">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-accent/15 flex items-center justify-center flex-shrink-0">
-              <Globe className="w-5 h-5 text-accent" />
+            <div className="w-10 h-10 rounded-xl bg-secondary/15 flex items-center justify-center flex-shrink-0">
+              <Globe className="w-5 h-5 text-amber-600" />
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
