@@ -31,8 +31,16 @@ const SECTORS = [
 const VOICES = [
   { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sofia', gender: 'female', description: 'Profesional y cálida', lang: 'es' },
   { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte', gender: 'female', description: 'Elegante y clara', lang: 'es' },
+  { id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Valentina', gender: 'female', description: 'Cercana y serena', lang: 'es' },
+  { id: 'XrExE9yKIg1WjnnlVkGX', name: 'Matilde', gender: 'female', description: 'Tranquila y confiable', lang: 'es' },
+  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lucía', gender: 'female', description: 'Joven y amable', lang: 'es' },
+  { id: 'Xb7hH8MSUJpSbSDYk0k2', name: 'Alicia', gender: 'female', description: 'Suave y delicada', lang: 'es' },
   { id: 'pNInz6obpgDQGcFmaJgB', name: 'Alejandro', gender: 'male', description: 'Formal y seguro', lang: 'es' },
   { id: 'N2lVS1w4EtoT3dr4eOWO', name: 'Carlos', gender: 'male', description: 'Amigable y directo', lang: 'es' },
+  { id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Javier', gender: 'male', description: 'Serio y profesional', lang: 'es' },
+  { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel', gender: 'male', description: 'Natural y tranquilo', lang: 'es' },
+  { id: 'AZnzlk1XvdvUeBnXmlld', name: 'Diego', gender: 'male', description: 'Sólido y seguro', lang: 'es' },
+  { id: 'JBFqnCBsd6RMkjVDRZzb', name: 'Jorge', gender: 'male', description: 'Cálido y pausado', lang: 'es' },
 ];
 
 const PERSONALITIES = [
@@ -327,7 +335,7 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
           {(['female', 'male'] as const).map((g) => (
             <button key={g} type="button"
               onClick={() => {
-                const defaultVoice = g === 'female' ? VOICES[0].id : VOICES[2].id;
+                const defaultVoice = g === 'female' ? VOICES[0].id : VOICES.find((v) => v.gender === 'male')!.id;
                 setForm({ ...form, gender: g, voice_id: defaultVoice });
               }}
               className={`rounded-xl border-2 p-4 text-center transition-all ${

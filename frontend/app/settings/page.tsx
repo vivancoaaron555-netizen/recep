@@ -30,8 +30,16 @@ const PERSONALITIES = [
 const VOICES = [
   { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sofia', gender: 'female' },
   { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte', gender: 'female' },
+  { id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Valentina', gender: 'female' },
+  { id: 'XrExE9yKIg1WjnnlVkGX', name: 'Matilde', gender: 'female' },
+  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lucía', gender: 'female' },
+  { id: 'Xb7hH8MSUJpSbSDYk0k2', name: 'Alicia', gender: 'female' },
   { id: 'pNInz6obpgDQGcFmaJgB', name: 'Alejandro', gender: 'male' },
   { id: 'N2lVS1w4EtoT3dr4eOWO', name: 'Carlos', gender: 'male' },
+  { id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Javier', gender: 'male' },
+  { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel', gender: 'male' },
+  { id: 'AZnzlk1XvdvUeBnXmlld', name: 'Diego', gender: 'male' },
+  { id: 'JBFqnCBsd6RMkjVDRZzb', name: 'Jorge', gender: 'male' },
 ];
 
 function CompanyTab({ data }: { data: any }) {
