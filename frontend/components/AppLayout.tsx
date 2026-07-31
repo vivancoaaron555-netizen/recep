@@ -9,7 +9,7 @@ import {
   Bot, LayoutDashboard, Phone, Calendar, Settings,
   LogOut, Menu, X, Shield, Bell, ChevronDown,
   Building2, User, Check, ExternalLink, Clock, CalendarDays,
-  Timer, CreditCard, AlertTriangle
+  Timer, CreditCard, AlertTriangle, Loader2
 } from 'lucide-react';
 import { api, setApiToken } from '@/lib/api';
 import { toast } from 'sonner';
@@ -36,6 +36,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [loading, setLoading] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -125,11 +126,14 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [subscription]);
 
   const handleUpgrade = async () => {
+    setLoading(true);
     try {
       const { url } = await api.billing.createCheckout('basic');
       window.location.href = url;
     } catch (err: any) {
       toast.error(err.message || 'Error al iniciar pago');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -141,7 +145,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
             <div>
               <p className="font-semibold text-sm">Tu prueba gratuita terminó</p>
-              <p className="text-xs text-muted-foreground">Para continuar usando tu recepcionista, activa tu plan.</p>
+              <p className="text-xs text-muted-foreground">Tu recepcionista está pausada. Activa tu plan para continuar.</p>
             </div>
           </div>
           <button onClick={handleUpgrade} className="btn-primary text-sm">
@@ -161,7 +165,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 Prueba gratis: {trialDaysLeft} {trialDaysLeft === 1 ? 'día' : 'días'} restantes
               </p>
               <p className="text-xs text-muted-foreground">
-                Cuando termine, podrás activar tu plan para seguir usando tu recepcionista.
+                Cuando termine, tu recepcionista se pausará hasta que actives tu plan.
               </p>
             </div>
           </div>
@@ -174,6 +178,41 @@ export function AppLayout({ children }: AppLayoutProps) {
 
     return null;
   };
+
+  // Full-screen gate when trial is expired
+  const TrialGate = () => (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-8 h-8 text-destructive" />
+          </div>
+          <h1 className="text-2xl font-bold mb-1">Tu prueba gratuita terminó</h1>
+          <p className="text-muted-foreground text-sm">
+            Tu recepcionista está pausada. Activa tu plan para seguir recibiendo llamadas y WhatsApp.
+          </p>
+        </div>
+
+        <div className="card space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold">Plan Basic</span>
+            <span className="text-lg font-bold">$99/mes</span>
+          </div>
+          <ul className="space-y-1.5 text-sm text-muted-foreground">
+            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Número de teléfono dedicado</li>
+            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Llamadas y WhatsApp 24/7</li>
+            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Panel con estadísticas</li>
+          </ul>
+          <button onClick={handleUpgrade} disabled={loading} className="btn-primary w-full justify-center">
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo...</> : <><CreditCard className="w-4 h-4" /> Activar plan ahora</>}
+          </button>
+          <button onClick={handleLogout} className="btn-ghost w-full justify-center text-sm text-muted-foreground">
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -319,6 +358,10 @@ export function AppLayout({ children }: AppLayoutProps) {
       </div>
     </div>
   );
+
+  if (trialExpired) {
+    return <TrialGate />;
+  }
 
   return (
     <div className="min-h-screen bg-background flex">

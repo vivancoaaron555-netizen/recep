@@ -4,6 +4,7 @@ import { generateSystemPrompt } from '../utils/generateSystemPrompt';
 import { generateResponse, generateCallSummary, Message } from '../utils/groq';
 import { sendNewAppointmentEmail } from '../utils/email';
 import { createNotification } from './notifications';
+import { isCompanyAccessActive } from '../utils/access';
 
 const router = Router();
 
@@ -114,6 +115,30 @@ router.post('/webhook', async (req: Request, res: Response) => {
             backgroundSound: 'office',
             backgroundDenoisingEnabled: true,
             endCallPhrases: ['adiós', 'gracias', 'que tengas buen día', 'hasta luego'],
+          },
+        });
+      }
+
+      // Check if the company still has access (trial expired / canceled)
+      const hasAccess = await isCompanyAccessActive(company.id);
+      if (!hasAccess) {
+        return res.json({
+          assistant: {
+            name: 'Sofia',
+            model: {
+              provider: 'groq',
+              model: 'llama-3.3-70b-versatile',
+              systemPrompt: `Eres Sofia, la recepcionista virtual de ${company.name}. El servicio de la empresa está actualmente inactivo porque la prueba gratuita terminó y el plan no está activo. Debes informar al cliente de forma amable y breve: "Lo sentimos, en este momento el servicio no está disponible. Por favor intenta de nuevo más tarde." No des más detalles. Responde siempre en español, en 1 o 2 frases cortas.`,
+              maxTokens: 100,
+              temperature: 0.5,
+            },
+            voice: {
+              provider: 'elevenlabs',
+              voiceId: 'g5CIjZEefAph4nQFVsP1',
+            },
+            language: 'es-ES',
+            silenceTimeoutSeconds: 5,
+            maxDurationSeconds: 60,
           },
         });
       }

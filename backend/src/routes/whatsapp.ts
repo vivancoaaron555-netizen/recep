@@ -5,6 +5,7 @@ import { generateResponse, Message } from '../utils/groq';
 import twilio from 'twilio';
 import { sendNewAppointmentEmail } from '../utils/email';
 import { createNotification } from './notifications';
+import { isCompanyAccessActive } from '../utils/access';
 
 const router = Router();
 
@@ -77,6 +78,18 @@ router.post('/webhook', async (req: Request, res: Response) => {
         .eq('company_id', companyId)
         .eq('active', true)
         .single();
+
+      // Block if trial expired / plan not active
+      const hasAccess = await isCompanyAccessActive(companyId);
+      if (company && !hasAccess) {
+        responseText = `Hola, gracias por escribirnos. En este momento el servicio de ${company.name} no está disponible. Por favor intenta más tarde.`;
+        const blockedResponse = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Message>${responseText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</Message>
+</Response>`;
+        res.set('Content-Type', 'text/xml');
+        return res.send(blockedResponse);
+      }
 
       if (company && assistant) {
         // Get or create conversation history
