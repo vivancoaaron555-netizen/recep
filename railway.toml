@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd backend && npm install && ./node_modules/.bin/tsc"
+buildCommand = "cd backend && npm install --include=dev && ./node_modules/.bin/tsc"
 
 [deploy]
 startCommand = "cd backend && node dist/index.js"

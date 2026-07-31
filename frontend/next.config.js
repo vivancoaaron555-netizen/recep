@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  webpack: (config, { dev }) => {
+    // Disable persistent webpack cache: Railway's .next/cache mount gets
+    // corrupted and causes spurious "Module not found" build failures.
+    if (!dev) config.cache = false;
+    return config;
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
