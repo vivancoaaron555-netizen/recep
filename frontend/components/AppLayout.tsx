@@ -105,31 +105,23 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
 
   // ── Trial countdown ─────────────────────────────────────────────────────────
-  const [timeLeft, setTimeLeft] = useState<{ d: number; h: number; m: number; s: number } | null>(null);
+  const [trialDaysLeft, setTrialDaysLeft] = useState<number | null>(null);
   const [trialExpired, setTrialExpired] = useState(false);
 
   useEffect(() => {
     if (!subscription || subscription.status !== 'trialing' || !subscription.current_period_end) return;
     const end = new Date(subscription.current_period_end).getTime();
+    const now = Date.now();
+    const days = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+    setTrialDaysLeft(Math.max(days, 0));
+    setTrialExpired(days <= 0);
 
-    const tick = () => {
-      const diff = end - Date.now();
-      if (diff <= 0) {
-        setTimeLeft(null);
-        setTrialExpired(true);
-        return;
-      }
-      setTrialExpired(false);
-      setTimeLeft({
-        d: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        h: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        m: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
-        s: Math.floor((diff % (1000 * 60)) / 1000),
-      });
-    };
+    const interval = setInterval(() => {
+      const remaining = Math.ceil((end - Date.now()) / (1000 * 60 * 60 * 24));
+      setTrialDaysLeft(Math.max(remaining, 0));
+      setTrialExpired(remaining <= 0);
+    }, 60000);
 
-    tick();
-    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [subscription]);
 
@@ -145,17 +137,15 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
   };
 
-  const pad = (n: number) => n.toString().padStart(2, '0');
-
   const TrialBanner = () => {
     if (trialExpired) {
       return (
-        <div className="mb-6 p-4 rounded-xl bg-red-950/50 border border-red-500/40 flex items-center justify-between gap-4 flex-wrap">
+        <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
             <div>
-              <p className="font-semibold text-sm text-white">Tu prueba gratuita terminó</p>
-              <p className="text-xs text-red-200/90">Tu recepcionista está pausada. Activa tu plan para continuar.</p>
+              <p className="font-semibold text-sm">Tu prueba gratuita terminó</p>
+              <p className="text-xs text-muted-foreground">Tu recepcionista está pausada. Activa tu plan para continuar.</p>
             </div>
           </div>
           <button onClick={handleUpgrade} className="btn-primary text-sm">
@@ -165,30 +155,21 @@ export function AppLayout({ children }: AppLayoutProps) {
       );
     }
 
-    if (timeLeft) {
+    if (trialDaysLeft !== null && trialDaysLeft > 0) {
       return (
-        <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-purple-800/60 to-purple-950/80 border border-amber-400/40 flex items-center justify-between gap-4 flex-wrap">
+        <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <Timer className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <Timer className="w-5 h-5 text-amber-600 flex-shrink-0" />
             <div>
-              <p className="font-semibold text-sm text-white">Prueba gratis</p>
-              <div className="flex items-center gap-1.5 mt-1.5">
-                <span className="bg-amber-400 text-purple-950 font-bold rounded-md px-2 py-1 text-sm tabular-nums min-w-[38px] text-center">
-                  {timeLeft.d}<span className="text-[10px] font-semibold ml-0.5">d</span>
-                </span>
-                <span className="bg-amber-400 text-purple-950 font-bold rounded-md px-2 py-1 text-sm tabular-nums min-w-[44px] text-center">
-                  {pad(timeLeft.h)}<span className="text-[10px] font-semibold ml-0.5">h</span>
-                </span>
-                <span className="bg-amber-400 text-purple-950 font-bold rounded-md px-2 py-1 text-sm tabular-nums min-w-[44px] text-center">
-                  {pad(timeLeft.m)}<span className="text-[10px] font-semibold ml-0.5">m</span>
-                </span>
-                <span className="bg-amber-400 text-purple-950 font-bold rounded-md px-2 py-1 text-sm tabular-nums min-w-[44px] text-center">
-                  {pad(timeLeft.s)}<span className="text-[10px] font-semibold ml-0.5">s</span>
-                </span>
-              </div>
+              <p className="font-semibold text-sm">
+                Prueba gratis: {trialDaysLeft} {trialDaysLeft === 1 ? 'día' : 'días'} restantes
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Cuando termine, tu recepcionista se pausará hasta que actives tu plan.
+              </p>
             </div>
           </div>
-          <button onClick={handleUpgrade} className="btn-primary text-sm">
+          <button onClick={handleUpgrade} className="btn-ghost text-sm text-amber-700 border border-amber-300">
             <CreditCard className="w-4 h-4" /> Activar plan
           </button>
         </div>
