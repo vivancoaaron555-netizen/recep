@@ -247,9 +247,15 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     const { data: subscription } = await supabase
       .from('subscriptions')
-      .select('plan, status, current_period_end')
+      .select('plan, status, current_period_end, created_at')
       .eq('user_id', user.id)
       .single();
+
+    // Fallback: if trialing without current_period_end, compute from created_at (legacy users)
+    if (subscription && subscription.status === 'trialing' && !subscription.current_period_end) {
+      const base = subscription.created_at || new Date().toISOString();
+      subscription.current_period_end = new Date(new Date(base).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    }
 
     return res.json({ user, company: company || null, subscription: subscription || null });
   } catch (err) {
