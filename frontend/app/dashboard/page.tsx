@@ -5,12 +5,13 @@ import { motion } from 'framer-motion';
 import {
   Phone, Calendar, MessageCircle, Clock,
   TrendingUp, ArrowUpRight, Bot, Activity,
-  CheckCircle, AlertCircle, PhoneCall, Users
+  CheckCircle, AlertCircle, PhoneCall, Users, Copy
 } from 'lucide-react';
 import { AppLayout } from '@/components/AppLayout';
 import { api } from '@/lib/api';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { toast } from 'sonner';
 
 interface Stats {
   callsToday: number;
@@ -148,9 +149,33 @@ function UpcomingAppointments({ appointments }: { appointments: any[] }) {
   );
 }
 
-function ChannelStatus() {
+const SHARED_NUMBER = '+1 901 799 6050';
+
+function ChannelStatus({ phoneNumber }: { phoneNumber: string }) {
+  const handleCopy = () => {
+    navigator.clipboard.writeText(phoneNumber);
+    toast.success('Número copiado');
+  };
+
   return (
     <div className="space-y-3">
+      {/* Assigned Number */}
+      <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Phone className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium">Tu número</span>
+          </div>
+          <button onClick={handleCopy} className="btn-ghost p-1" title="Copiar">
+            <Copy className="w-3.5 h-3.5" />
+          </button>
+        </div>
+        <p className="text-lg font-bold tracking-wide mt-1">{phoneNumber}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Tus pacientes llaman a este número
+        </p>
+      </div>
+
       {[
         { name: 'Llamadas (Vapi)', status: 'active', icon: Phone, color: 'text-primary' },
         { name: 'WhatsApp', status: 'active', icon: MessageCircle, color: 'text-green-500' },
@@ -177,18 +202,23 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentCalls, setRecentCalls] = useState<any[]>([]);
   const [upcomingApts, setUpcomingApts] = useState<any[]>([]);
+  const [phoneNumber, setPhoneNumber] = useState(SHARED_NUMBER);
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
     try {
-      const [statsData, callsData, aptsData] = await Promise.all([
+      const [statsData, callsData, aptsData, phoneData] = await Promise.all([
         api.dashboard.stats(),
         api.dashboard.calls(1, 5),
         api.dashboard.appointments('pending', 1),
+        api.phoneNumbers.my().catch(() => ({ success: false, phoneNumber: null, friendlyName: null })),
       ]);
       setStats(statsData);
       setRecentCalls(callsData.calls || []);
       setUpcomingApts(aptsData.appointments || []);
+      if (phoneData.phoneNumber) {
+        setPhoneNumber(phoneData.phoneNumber);
+      }
     } catch (err) {
       console.error('Dashboard load error:', err);
     } finally {
@@ -281,7 +311,7 @@ export default function DashboardPage() {
             {/* Channel Status */}
             <div className="card">
               <h2 className="font-semibold mb-4">Estado de canales</h2>
-              <ChannelStatus />
+              <ChannelStatus phoneNumber={phoneNumber} />
             </div>
           </div>
         </div>
