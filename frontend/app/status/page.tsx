@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bot, Check, X, Loader2, RefreshCw } from 'lucide-react';
+import { Check, X, Loader2, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
 type ServiceStatus = {
@@ -43,9 +43,6 @@ export default function StatusPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-lg">
         <Link href="/" className="inline-flex items-center gap-2 mb-8 mx-auto justify-center w-full">
-          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-            <Bot className="w-5 h-5 text-white" />
-          </div>
           <span className="font-bold text-lg">Recept.ai</span>
         </Link>
 

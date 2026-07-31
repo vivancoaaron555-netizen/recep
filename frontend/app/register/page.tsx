@@ -5,7 +5,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Bot, Check, Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 
 const FEATURES = [
   '14 días gratis, sin tarjeta',
@@ -43,9 +43,6 @@ export default function RegisterPage() {
       >
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-              <Bot className="w-6 h-6 text-white" />
-            </div>
             <span className="font-bold text-xl">Recept.ai</span>
           </Link>
           <h1 className="text-3xl font-bold">Crea tu cuenta</h1>

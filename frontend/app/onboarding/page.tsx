@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Bot, Building2, User, Radio, Check,
+  Building2, User, Radio, Check,
   ChevronRight, ChevronLeft, Loader2, Plus, X,
   Phone, MessageCircle, Globe, Volume2, CreditCard,
   Upload, Link
@@ -634,9 +634,6 @@ export default function OnboardingPage() {
       <div className="w-full max-w-2xl relative z-10">
         {/* Logo */}
         <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-            <Bot className="w-5 h-5 text-white" />
-          </div>
           <span className="font-bold text-lg">Recept.ai</span>
         </div>
 

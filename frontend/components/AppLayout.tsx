@@ -6,7 +6,7 @@ import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Bot, LayoutDashboard, Phone, Calendar, Settings,
+  LayoutDashboard, Phone, Calendar, Settings,
   LogOut, Menu, X, Shield, Bell, ChevronDown,
   Building2, User, Check, ExternalLink, Clock, CalendarDays,
   Timer, CreditCard, AlertTriangle, Loader2
@@ -218,9 +218,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="flex items-center gap-2 px-4 py-6 border-b border-border">
-        <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-          <Bot className="w-5 h-5 text-white" />
-        </div>
         <span className="font-bold text-lg">Recept.ai</span>
       </div>
 
@@ -401,9 +398,6 @@ export function AppLayout({ children }: AppLayoutProps) {
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between h-14 px-4 border-b border-border bg-card/80 backdrop-blur sticky top-0 z-30">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <Bot className="w-4 h-4 text-white" />
-            </div>
             <span className="font-bold">Recept.ai</span>
           </div>
           <div className="flex items-center gap-2">

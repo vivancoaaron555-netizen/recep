@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Bot, Check, ArrowRight, Loader2, CreditCard, Shield } from 'lucide-react';
+import { Check, ArrowRight, Loader2, CreditCard, Shield } from 'lucide-react';
 
 const BENEFITS = [
   'Asistente IA para llamadas y WhatsApp',
@@ -54,9 +54,6 @@ export default function TrialPage() {
       >
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-              <Bot className="w-6 h-6 text-white" />
-            </div>
             <span className="font-bold text-xl">Recept.ai</span>
           </Link>
           <h1 className="text-3xl font-bold">Prueba gratuita por 7 días</h1>
