@@ -206,6 +206,12 @@ router.post('/channels', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Company not found' });
     }
 
+    // Mark onboarding as completed
+    await supabase
+      .from('companies')
+      .update({ onboarding_completed: true })
+      .eq('id', company.id);
+
     return res.json({
       success: true,
       message: 'Canales activados',

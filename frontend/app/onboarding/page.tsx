@@ -426,13 +426,7 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
 // ─── Step 3: Channels + Phone Verification ────────────────────────────────────
 function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => void }) {
   const [loading, setLoading] = useState(false);
-  const [sendingCode, setSendingCode] = useState(false);
   const [channelData, setChannelData] = useState<any>(null);
-  const [codeSent, setCodeSent] = useState(false);
-  const [code, setCode] = useState('');
-  const [verifying, setVerifying] = useState(false);
-  const [verified, setVerified] = useState(false);
-  const [devCode, setDevCode] = useState('');
 
   const SHARED_NUMBER = '+1 901 799 6050';
 
@@ -444,43 +438,8 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
       toast.success('¡Canales activados!');
     } catch (err: any) {
       toast.error(err.message || 'Error al activar canales');
-      setChannelData(null);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSendCode = async () => {
-    setSendingCode(true);
-    try {
-      const result = await api.onboarding.sendCode();
-      setCodeSent(true);
-      if (result.devCode) {
-        setDevCode(result.devCode);
-        setCode(result.devCode);
-      }
-      toast.success(result.message);
-    } catch (err: any) {
-      toast.error(err.message || 'Error al enviar código');
-    } finally {
-      setSendingCode(false);
-    }
-  };
-
-  const handleVerify = async () => {
-    if (code.length !== 6) {
-      toast.error('Ingresa el código de 6 dígitos');
-      return;
-    }
-    setVerifying(true);
-    try {
-      const result = await api.onboarding.verifyCode(code);
-      setVerified(true);
-      toast.success(result.message);
-    } catch (err: any) {
-      toast.error(err.message || 'Código incorrecto');
-    } finally {
-      setVerifying(false);
     }
   };
 
@@ -502,14 +461,12 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">Llamadas telefónicas</h3>
                 <span className={`badge ${channelData ? 'badge-success' : 'badge-primary'}`}>
-                  {channelData ? '✓ Activo' : 'Incluido'}
+                  {channelData ? 'Activo' : 'Incluido'}
                 </span>
               </div>
-              {channelData && (
-                <p className="text-sm font-mono mt-2">
-                  Número: <strong>{SHARED_NUMBER}</strong>
-                </p>
-              )}
+              <p className="text-sm text-muted-foreground mt-1">
+                Recibe llamadas con voz IA las 24/7
+              </p>
             </div>
           </div>
         </div>
@@ -524,7 +481,7 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">WhatsApp</h3>
                 <span className={`badge ${channelData ? 'badge-success' : 'badge-muted'}`}>
-                  {channelData ? '✓ Activo' : 'Pendiente'}
+                  {channelData ? 'Activo' : 'Pendiente'}
                 </span>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
@@ -553,72 +510,24 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
         </div>
       </div>
 
-      {/* Activate button */}
-      {!channelData && (
-        <button onClick={handleActivate} disabled={loading} className="btn-primary w-full justify-center">
-          {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Activando...</> : <>Activar Canales <ChevronRight className="w-4 h-4" /></>}
-        </button>
-      )}
-
-      {/* Send code button (after activation, before verified) */}
-      {channelData && !verified && !codeSent && (
-        <button onClick={handleSendCode} disabled={sendingCode} className="btn-primary w-full justify-center">
-          {sendingCode ? <><Loader2 className="w-4 h-4 animate-spin" /> Enviando código...</> : <>Enviar código de verificación <ChevronRight className="w-4 h-4" /></>}
-        </button>
-      )}
-
-      {/* SMS Verification */}
-      {codeSent && !verified && (
-        <div className="card border-primary/30 bg-primary/5">
-          <div className="text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center mx-auto">
-              <MessageCircle className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-semibold">Verifica tu número</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                {devCode ? `Código de desarrollo: ${devCode}` : 'Enviamos un código de 6 dígitos al teléfono registrado'}
-              </p>
-            </div>
-            <div className="flex gap-2 max-w-xs mx-auto">
-              <input
-                className="input text-center text-lg font-mono tracking-widest"
-                placeholder="000000"
-                maxLength={6}
-                value={code}
-                onChange={e => setCode(e.target.value.replace(/\D/g, ''))}
-                autoFocus
-              />
-              <button onClick={handleVerify} disabled={verifying} className="btn-primary px-6">
-                {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verificar'}
-              </button>
-            </div>
-            <button onClick={handleSendCode} disabled={sendingCode} className="btn-ghost text-xs w-full">
-              {sendingCode ? 'Enviando...' : 'Reenviar código'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* After verification */}
-      {verified && channelData && (
+      {channelData ? (
         <>
           <div className="card border-primary/30 bg-primary/5 text-center">
+            <Phone className="w-10 h-10 text-primary mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">Tu número temporal</p>
-            <p className="text-xl font-bold tracking-wide">{SHARED_NUMBER}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Tus pacientes llaman a este número. Cuando actives tu plan, recibirás un número dedicado.
+            <p className="text-2xl font-bold tracking-wide">{SHARED_NUMBER}</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Este es tu número por <strong>7 días de prueba</strong>. Cuando actives tu plan, recibirás un número dedicado permanente.
             </p>
           </div>
-          {channelData?.whatsappInstructions && (
-            <div className="bg-card border border-border rounded-lg px-3 py-2 text-xs text-muted-foreground">
-              {channelData.whatsappInstructions}
-            </div>
-          )}
           <button onClick={() => onNext(channelData)} className="btn-primary w-full justify-center">
             Continuar al pago <ChevronRight className="w-4 h-4" />
           </button>
         </>
+      ) : (
+        <button onClick={handleActivate} disabled={loading} className="btn-primary w-full justify-center">
+          {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Activando...</> : <>Obtener mi número temporal <ChevronRight className="w-4 h-4" /></>}
+        </button>
       )}
 
       <button onClick={onBack} className="btn-ghost w-full justify-center text-sm">
