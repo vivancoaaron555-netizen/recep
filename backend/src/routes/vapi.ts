@@ -9,6 +9,9 @@ import { getCompanyPlan, countCallsThisMonth } from '../utils/plans';
 
 const router = Router();
 
+/** Voz femenina por defecto (ElevenLabs — Sofia) para los asistentes de respaldo. */
+const FALLBACK_VOICE_ID = 'EXAVITQu4vr4xnSDxMaL';
+
 /**
  * Fallback assistant used when a company has no access or reached its plan limit.
  */
@@ -25,7 +28,7 @@ function unavailableAssistant(companyName: string) {
       },
       voice: {
         provider: 'elevenlabs',
-        voiceId: 'g5CIjZEefAph4nQFVsP1',
+        voiceId: FALLBACK_VOICE_ID,
       },
       language: 'es-ES',
       silenceTimeoutSeconds: 5,
@@ -133,7 +136,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
             },
             voice: {
               provider: 'elevenlabs',
-              voiceId: 'g5CIjZEefAph4nQFVsP1',
+              voiceId: FALLBACK_VOICE_ID,
             },
             language: 'es-ES',
             silenceTimeoutSeconds: 10,
