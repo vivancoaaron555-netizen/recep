@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const viewport: Viewport = {
-  themeColor: '#faf7ff',
+  themeColor: '#170a2b',
 };
 
 export const metadata: Metadata = {
@@ -43,13 +43,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </AuthProvider>
         <Toaster
-          theme="light"
+          theme="dark"
           position="top-right"
           toastOptions={{
             style: {
-              background: '#ffffff',
-              border: '1px solid #f0e0ff',
-              color: '#241034',
+              background: '#1f0f38',
+              border: '1px solid #3b2163',
+              color: '#ffffff',
             },
           }}
         />
