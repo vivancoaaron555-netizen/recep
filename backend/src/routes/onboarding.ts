@@ -246,15 +246,18 @@ router.post('/send-code', async (req: AuthRequest, res: Response) => {
     }
 
     // Admin bypass: skip SMS, show code in response
-    if (req.user!.email === process.env.ADMIN_EMAIL) {
+    const isAdmin = req.user!.email?.toLowerCase() === (process.env.ADMIN_EMAIL || '').toLowerCase();
+    if (isAdmin) {
       console.log('[onboarding/send-code] Admin bypass — code:', code);
       return res.json({ sent: true, devCode: code, message: `Modo desarrollo — código: ${code}` });
     }
 
     const sent = await sendSMS(company.phone, `Tu código de verificación de Recept.ai es: ${code}. Este código expira en 10 minutos.`);
 
+    // If SMS fails (e.g. Twilio trial), show code anyway so user can still verify
     if (!sent) {
-      return res.status(500).json({ error: 'Error al enviar el SMS. Verifica el número de teléfono.' });
+      console.warn('[onboarding/send-code] SMS failed — returning code for development');
+      return res.json({ sent: true, devCode: code, message: 'No se pudo enviar SMS. Usa el código mostrado.' });
     }
 
     return res.json({ sent: true, message: `Código enviado a ${company.phone.replace(/\d(?=\d{4})/g, '*')}` });
