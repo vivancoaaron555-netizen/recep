@@ -57,7 +57,7 @@ export default function TrialPage() {
             <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
               <Bot className="w-6 h-6 text-white" />
             </div>
-            <span className="font-bold text-xl">Recept<span className="text-primary">.ai</span></span>
+            <span className="font-bold text-xl">Recept.ai</span>
           </Link>
           <h1 className="text-3xl font-bold">Prueba gratuita por 7 días</h1>
           <p className="text-muted-foreground mt-2">

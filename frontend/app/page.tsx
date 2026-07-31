@@ -30,7 +30,7 @@ function Navbar() {
           <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
             <Bot className="w-5 h-5 text-white" />
           </div>
-          <span className="font-bold text-lg">Recept<span className="text-primary">.ai</span></span>
+          <span className="font-bold text-lg">Recept.ai</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
@@ -604,7 +604,7 @@ function Footer() {
             <div className="w-6 h-6 rounded bg-gradient-primary flex items-center justify-center">
               <Bot className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold">Recept<span className="text-primary">.ai</span></span>
+            <span className="font-bold">Recept.ai</span>
           </div>
           <p className="text-sm text-muted-foreground">
             © 2024 Recept.ai — Tu recepcionista nunca duerme
