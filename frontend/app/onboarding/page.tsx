@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2, User, Radio, Check,
   ChevronRight, ChevronLeft, Loader2, Plus, X,
   Phone, MessageCircle, Globe, Volume2, CreditCard,
-  Upload, Link
+  Link
 } from 'lucide-react';
 import { api, setApiToken } from '@/lib/api';
 import { useSession } from 'next-auth/react';
@@ -249,7 +249,6 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
   const [customInfo, setCustomInfo] = useState('');
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [gdocUrl, setGdocUrl] = useState('');
   const [showGdocInput, setShowGdocInput] = useState(false);
 
@@ -268,22 +267,6 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
       toast.error(err.message || 'Error al configurar asistente');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImporting(true);
-    try {
-      const result = await api.onboarding.uploadDoc(file);
-      setCustomInfo(prev => prev ? prev + '\n\n' + result.text : result.text);
-      toast.success('Archivo importado correctamente');
-    } catch (err: any) {
-      toast.error(err.message || 'Error al importar archivo');
-    } finally {
-      setImporting(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -390,22 +373,17 @@ function Step2({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
         <label className="label">Información adicional de la empresa</label>
         <p className="text-xs text-muted-foreground mb-2">
           Escribe precios, políticas, promociones o cualquier info que deba saber la recepcionista.
-          También puedes subir un archivo o importar de Google Docs.
+          También puedes importar de Google Docs.
         </p>
         <textarea className="input h-32 resize-none font-mono text-xs"
           value={customInfo}
           onChange={e => setCustomInfo(e.target.value)}
           placeholder="Ej: Precios: Consulta general $500, Limpieza dental $800. Aceptamos VISA y Mastercard. Promoción 2x1 en primera consulta..." />
         <div className="flex gap-2 mt-2">
-          <button type="button" onClick={() => fileInputRef.current?.click()} disabled={importing}
-            className="btn-secondary text-xs">
-            {importing ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Upload className="w-3 h-3" /> Subir archivo</>}
-          </button>
           <button type="button" onClick={() => setShowGdocInput(!showGdocInput)}
             className="btn-secondary text-xs">
             <Link className="w-3 h-3" /> Google Docs
           </button>
-          <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.gif,.webp" className="hidden" onChange={handleFileUpload} />
         </div>
         {showGdocInput && (
           <div className="flex gap-2 mt-2">

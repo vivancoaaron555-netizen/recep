@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Building2, Bot, Radio, CreditCard, Save, Loader2,
   ExternalLink, Check, AlertCircle, Phone, MessageCircle, Globe,
-  Upload, Link
+  Link
 } from 'lucide-react';
 import { AppLayout } from '@/components/AppLayout';
 import { api } from '@/lib/api';
@@ -113,7 +113,6 @@ function AssistantTab() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [importing, setImporting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [gdocUrl, setGdocUrl] = useState('');
   const [showGdocInput, setShowGdocInput] = useState(false);
 
@@ -153,22 +152,6 @@ function AssistantTab() {
       toast.error(err.message || 'Error al guardar');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImporting(true);
-    try {
-      const result = await api.onboarding.uploadDoc(file);
-      setForm(prev => ({ ...prev, custom_info: prev.custom_info ? prev.custom_info + '\n\n' + result.text : result.text }));
-      toast.success('Archivo importado');
-    } catch (err: any) {
-      toast.error(err.message || 'Error al importar');
-    } finally {
-      setImporting(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -249,13 +232,9 @@ function AssistantTab() {
             onChange={e => setForm({ ...form, custom_info: e.target.value })}
             placeholder="Ej: Precios, promociones, políticas de cancelación..." />
           <div className="flex gap-2 mt-2">
-            <button type="button" onClick={() => fileInputRef.current?.click()} disabled={importing} className="btn-secondary text-xs">
-              {importing ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Upload className="w-3 h-3" /> Subir archivo</>}
-            </button>
             <button type="button" onClick={() => setShowGdocInput(!showGdocInput)} className="btn-secondary text-xs">
               <Link className="w-3 h-3" /> Google Docs
             </button>
-            <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.gif,.webp" className="hidden" onChange={handleFileUpload} />
           </div>
           {showGdocInput && (
             <div className="flex gap-2 mt-2">
