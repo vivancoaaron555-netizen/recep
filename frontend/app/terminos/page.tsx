@@ -61,7 +61,19 @@ const sections = [
     body: `Estos términos se rigen por la legislación española. Para cualquier controversia, ambas partes se someten a los juzgados y tribunales de ${LEGAL.city || 'España'}, salvo que la ley disponga un fuero necesario distinto.`,
   },
   {
-    title: '14. Contacto',
+    title: '14. Arbitraje',
+    body: 'Cualquier controversia derivada de estos términos o del uso del servicio se resolverá mediante arbitraje conforme a la legislación española, renunciando a la vía judicial, salvo que la ley disponga un fuero necesario distinto.',
+  },
+  {
+    title: '15. Contenido de los usuarios',
+    body: 'Eres el único responsable del contenido que configures, subas o introduzcas en el servicio (instrucciones, prompts, datos, mensajes). Recept.ai no se hace responsable si dicho contenido infringe derechos de autor de terceros o resulta ilícito, inapropiado o indebido: tú respondes íntegramente del mismo y de sus consecuencias legales. Colaboraremos con las autoridades competentes ante cualquier contenido ilegal que se detecte.',
+  },
+  {
+    title: '16. Uso de inteligencia artificial',
+    body: 'El servicio utiliza inteligencia artificial (a través de proveedores como Vapi, ElevenLabs y Groq) para atender llamadas y mensajes de WhatsApp y generar respuestas automáticas. Las respuestas generadas son automáticas y pueden contener errores; revisa la sección de limitación de responsabilidad.',
+  },
+  {
+    title: '17. Contacto',
     body: `Para cualquier consulta sobre estos términos, escríbenos a ${LEGAL.email}.`,
   },
 ];

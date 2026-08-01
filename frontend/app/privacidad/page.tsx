@@ -52,6 +52,14 @@ const sections = [
     title: '11. Cambios en esta política',
     body: `Podemos actualizar esta política para reflejar cambios legales o del servicio. La fecha de última actualización se indica al inicio de esta página.`,
   },
+  {
+    title: '12. Uso de inteligencia artificial, contenido de los usuarios y arbitraje',
+    body: `Nuestro servicio utiliza inteligencia artificial (a través de proveedores como Vapi, ElevenLabs y Groq) para atender llamadas y mensajes de WhatsApp y generar respuestas automáticas. Las interacciones pueden procesarse mediante modelos de lenguaje y conservarse en forma de audio o transcripción según lo indicado en esta política.
+
+El usuario es el único responsable del contenido que configura, sube o introduce en el servicio (instrucciones, prompts, datos, mensajes). Recept.ai no se hace responsable si dicho contenido infringe derechos de autor de terceros o resulta ilícito, inapropiado o indebido: el usuario responde íntegramente del mismo y de las consecuencias legales. Colaboraremos con las autoridades competentes ante cualquier contenido ilegal que se detecte.
+
+Cualquier controversia derivada de esta política o del uso del servicio se resolverá mediante arbitraje conforme a la legislación española, renunciando a la vía judicial, salvo que la ley disponga un fuero necesario distinto.`,
+  },
 ];
 
 export default function PrivacidadPage() {
