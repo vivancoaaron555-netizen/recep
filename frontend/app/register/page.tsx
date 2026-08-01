@@ -86,9 +86,9 @@ export default function RegisterPage() {
 
         <p className="text-center text-xs text-muted-foreground mt-4">
           Al crear una cuenta aceptas nuestros{' '}
-          <a href="#" className="text-primary hover:underline">Términos</a>{' '}
+          <Link href="/terminos" className="text-primary hover:underline">Términos</Link>{' '}
           y{' '}
-          <a href="#" className="text-primary hover:underline">Privacidad</a>
+          <Link href="/privacidad" className="text-primary hover:underline">Privacidad</Link>
         </p>
       </motion.div>
     </div>

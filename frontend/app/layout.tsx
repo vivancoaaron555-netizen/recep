@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/lib/auth-provider';
+import CookieConsentBanner from '@/components/CookieConsentBanner';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.variable} font-sans bg-background text-foreground antialiased`}>
         <AuthProvider>
           {children}
+          <CookieConsentBanner />
         </AuthProvider>
         <Toaster
           theme="dark"

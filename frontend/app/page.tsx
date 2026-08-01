@@ -604,9 +604,11 @@ function Footer() {
             © 2024 Recept.ai — Tu recepcionista nunca duerme
           </p>
           <div className="flex gap-4 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">Privacidad</a>
-            <a href="#" className="hover:text-foreground transition-colors">Términos</a>
-            <a href="#" className="hover:text-foreground transition-colors">Contacto</a>
+            <a href="/privacidad" className="hover:text-foreground transition-colors">Privacidad</a>
+            <a href="/terminos" className="hover:text-foreground transition-colors">Términos</a>
+            <a href="/aviso-legal" className="hover:text-foreground transition-colors">Aviso legal</a>
+            <a href="/cookies" className="hover:text-foreground transition-colors">Cookies</a>
+            <a href="mailto:hola@recept.ai" className="hover:text-foreground transition-colors">Contacto</a>
           </div>
         </div>
       </div>
