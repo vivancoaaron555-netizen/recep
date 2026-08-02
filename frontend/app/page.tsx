@@ -608,7 +608,7 @@ function Footer() {
             <a href="/terminos" className="hover:text-foreground transition-colors">Términos</a>
             <a href="/aviso-legal" className="hover:text-foreground transition-colors">Aviso legal</a>
             <a href="/cookies" className="hover:text-foreground transition-colors">Cookies</a>
-            <a href="mailto:hola@recept.ai" className="hover:text-foreground transition-colors">Contacto</a>
+            <a href="mailto:hola@recept.ink" className="hover:text-foreground transition-colors">Contacto</a>
           </div>
         </div>
       </div>

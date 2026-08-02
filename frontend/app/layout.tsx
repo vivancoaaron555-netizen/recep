@@ -16,6 +16,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://recept.ink'),
   title: {
     default: 'Recept.ai — Tu Recepcionista 24/7 con IA',
     template: '%s | Recept.ai',
@@ -23,11 +24,15 @@ export const metadata: Metadata = {
   description:
     'Automatiza la atención de llamadas y WhatsApp de tu negocio con inteligencia artificial. Citas, consultas y atención al cliente 24/7 sin contratar personal.',
   keywords: ['recepcionista IA', 'chatbot WhatsApp', 'atención al cliente', 'automatización', 'citas online'],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'Recept.ai — Tu Recepcionista 24/7 con IA',
     description: 'Automatiza la atención de llamadas y WhatsApp con IA',
     type: 'website',
     locale: 'es_ES',
+    url: 'https://recept.ink',
   },
   robots: { index: true, follow: true },
 };

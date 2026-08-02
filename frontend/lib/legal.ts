@@ -4,8 +4,8 @@ export const LEGAL = {
   nif: '[CIF / NIF]',
   address: '[Dirección completa]',
   city: '[Ciudad, País]',
-  email: 'hola@recept.ai',
+  email: 'hola@recept.ink',
   phone: '[Teléfono de contacto]',
-  website: 'recept.ai',
+  website: 'recept.ink',
   lastUpdated: '31 de julio de 2026',
 };
