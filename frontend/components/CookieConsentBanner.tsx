@@ -20,6 +20,7 @@ export default function CookieConsentBanner() {
   const decide = (value: 'accepted' | 'rejected') => {
     window.localStorage.setItem(STORAGE_KEY, value);
     setVisible(false);
+    window.dispatchEvent(new CustomEvent('recept-consent-change', { detail: value }));
   };
 
   if (!visible) return null;

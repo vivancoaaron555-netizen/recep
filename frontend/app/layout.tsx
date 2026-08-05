@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/lib/auth-provider';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           {children}
           <CookieConsentBanner />
+          <GoogleAnalytics />
         </AuthProvider>
         <Toaster
           theme="dark"
