@@ -33,10 +33,10 @@ router.post('/buy', async (req: AuthRequest, res: Response) => {
       return res.status(403).json({ error: 'Activa tu plan para comprar números' });
     }
 
-    // Solo planes de pago (pro/business) pueden comprar un número dedicado
-    if (planInfo.plan === 'trial' || planInfo.plan === 'basic') {
+    // Solo planes de pago (basic/pro/business) pueden comprar un número dedicado
+    if (planInfo.plan === 'trial') {
       return res.status(403).json({
-        error: 'Los números dedicados están disponibles solo en los planes Pro y Business',
+        error: 'Los números dedicados están disponibles solo en los planes de pago',
       });
     }
 
