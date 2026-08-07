@@ -7,16 +7,29 @@ function getHeaders() {
   };
 }
 
+const VAPI_WEBHOOK_URL = process.env.VAPI_WEBHOOK_URL || '';
+
 export async function importPhoneNumber(number: string, twilioSid: string, name = '') {
+  const body: Record<string, any> = {
+    provider: 'twilio',
+    number,
+    twilioPhoneNumberSid: twilioSid,
+    name,
+  };
+
+  // If a webhook URL is configured, set the number in dynamic mode so Vapi
+  // calls our assistant-request webhook to pick the per-company voice/prompt.
+  if (VAPI_WEBHOOK_URL) {
+    body.serverUrl = VAPI_WEBHOOK_URL;
+    if (process.env.VAPI_WEBHOOK_SECRET) {
+      body.serverUrlSecret = process.env.VAPI_WEBHOOK_SECRET;
+    }
+  }
+
   const res = await fetch(`${VAPI_BASE}/phone-number`, {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({
-      provider: 'twilio',
-      number,
-      twilioPhoneNumberSid: twilioSid,
-      name,
-    }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
     const err = await res.text();

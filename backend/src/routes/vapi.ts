@@ -27,7 +27,7 @@ function unavailableAssistant(companyName: string) {
         temperature: 0.5,
       },
       voice: {
-        provider: 'elevenlabs',
+        provider: '11labs',
         voiceId: FALLBACK_VOICE_ID,
       },
       language: 'es-ES',
@@ -135,7 +135,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
               temperature: 0.7,
             },
             voice: {
-              provider: 'elevenlabs',
+              provider: '11labs',
               voiceId: FALLBACK_VOICE_ID,
             },
             language: 'es-ES',
@@ -175,9 +175,12 @@ router.post('/webhook', async (req: Request, res: Response) => {
             maxTokens: 200,
             temperature: 0.7,
           },
+          // Preferimos la voz configurada por la empresa; si no está o es
+          // inválida, usamos Sofía (femenina ElevenLabs) como fallback para
+          // nunca quedar con la voz por defecto de Vapi (masculina).
           voice: {
-            provider: 'elevenlabs',
-            voiceId: assistant.voice_id,
+            provider: '11labs',
+            voiceId: (assistant.voice_id as string) || FALLBACK_VOICE_ID,
           },
           language: assistant.language || 'es',
           silenceTimeoutSeconds: 20,
