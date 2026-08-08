@@ -6,7 +6,7 @@ import { signIn } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import {
   Phone, MessageCircle, Calendar, Clock, Zap, Shield,
-  ChevronRight, Check, Star, Menu, X, Bot,
+  ChevronRight, Check, Menu, X, Bot,
   BarChart3, Globe, Headphones, ArrowRight, Sparkles
 } from 'lucide-react';
 
@@ -34,7 +34,6 @@ function Navbar() {
           {[
             { label: 'Características', href: '#features' },
             { label: 'Precios', href: '#pricing' },
-            { label: 'Testimonios', href: '#testimonials' },
           ].map((link) => (
             <a key={link.href} href={link.href}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -60,7 +59,6 @@ function Navbar() {
           {[
             { label: 'Características', href: '#features' },
             { label: 'Precios', href: '#pricing' },
-            { label: 'Testimonios', href: '#testimonials' },
           ].map((link) => (
             <a key={link.href} href={link.href}
               className="block px-4 py-2 text-muted-foreground hover:text-foreground"
@@ -133,7 +131,7 @@ function Hero() {
 
           {/* Social proof */}
           <p className="text-muted-foreground text-sm mb-12">
-            Sin tarjeta de crédito · Configuración en 5 minutos · Cancela cuando quieras
+            Configuración en 5 minutos · Cancela cuando quieras
           </p>
         </motion.div>
 
@@ -423,7 +421,7 @@ function Pricing() {
             Simple y transparente
           </h2>
           <p className="text-xl text-muted-foreground">
-            14 días gratis en todos los planes. Sin tarjeta de crédito.
+            14 días gratis en todos los planes.
           </p>
         </div>
 
@@ -480,74 +478,6 @@ function Pricing() {
   );
 }
 
-// ─── Testimonials ────────────────────────────────────────────────────────────
-const testimonials = [
-  {
-    name: 'Dr. Carlos Méndez',
-    role: 'Dentista · Guadalajara',
-    text: 'Antes perdía 20+ llamadas al día. Ahora la IA las atiende todas y me manda un resumen. Mis citas aumentaron 40%.',
-    rating: 5,
-    avatar: 'CM',
-  },
-  {
-    name: 'Sofía Ramírez',
-    role: 'Spa & Wellness · CDMX',
-    text: 'Mis clientes dicen que la recepcionista es "muy amable". No saben que es IA. Es increíble.',
-    rating: 5,
-    avatar: 'SR',
-  },
-  {
-    name: 'Roberto Torres',
-    role: 'Consultorio Legal · Monterrey',
-    text: 'Configuré todo en 10 minutos. Ahora mi número funciona 24/7 y los clientes pueden agendar consultas a cualquier hora.',
-    rating: 5,
-    avatar: 'RT',
-  },
-];
-
-function Testimonials() {
-  return (
-    <section id="testimonials" className="section bg-card/30 border-y border-border">
-      <div className="container-xl">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Lo que dicen nuestros clientes
-          </h2>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={t.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              viewport={{ once: true }}
-              className="card-hover"
-            >
-              <div className="flex gap-1 mb-4">
-                {Array.from({ length: t.rating }).map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-warning fill-warning" />
-                ))}
-              </div>
-              <p className="text-muted-foreground mb-6 leading-relaxed">"{t.text}"</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center text-white font-bold text-sm">
-                  {t.avatar}
-                </div>
-                <div>
-                  <div className="font-semibold text-sm">{t.name}</div>
-                  <div className="text-xs text-muted-foreground">{t.role}</div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ─── CTA Final ────────────────────────────────────────────────────────────────
 function CTASection() {
   return (
@@ -583,7 +513,7 @@ function CTASection() {
             </div>
           </div>
           <p className="text-sm text-muted-foreground mt-6">
-            Sin tarjeta de crédito · Cancela cuando quieras · Soporte en español
+            Cancela cuando quieras · Soporte en español
           </p>
         </motion.div>
       </div>
@@ -625,7 +555,6 @@ export default function LandingPage() {
       <Features />
       <HowItWorks />
       <Pricing />
-      <Testimonials />
       <CTASection />
       <Footer />
     </main>

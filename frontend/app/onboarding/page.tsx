@@ -593,7 +593,7 @@ function Step4({ router }: { router: ReturnType<typeof useRouter> }) {
       </div>
 
       <button onClick={handleSkip} disabled={skipLoading} className="btn-ghost w-full justify-center text-sm">
-        {skipLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Empezar prueba gratis sin tarjeta'}
+        {skipLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Empezar prueba gratis'}
       </button>
     </div>
   );

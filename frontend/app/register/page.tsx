@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { Check, Loader2 } from 'lucide-react';
 
 const FEATURES = [
-  '14 días gratis, sin tarjeta',
+  '14 días gratis',
   'Llamadas y WhatsApp con IA',
   'Atención 24/7 automatizada',
   'Panel de control en tiempo real',
