@@ -159,7 +159,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
           </div>
           <button onClick={handleUpgrade} className="btn-primary text-sm">
-            <CreditCard className="w-4 h-4" /> Activar plan · $99/mes
+            <CreditCard className="w-4 h-4" /> Activar plan · €49/mes
           </button>
         </div>
       );
@@ -214,8 +214,8 @@ export function AppLayout({ children }: AppLayoutProps) {
 
         <div className="card space-y-4">
           <div className="flex items-center justify-between">
-            <span className="font-semibold">Plan Basic</span>
-            <span className="text-lg font-bold">$99/mes</span>
+            <span className="font-semibold">Plan Starter</span>
+            <span className="text-lg font-bold">€49/mes</span>
           </div>
           <ul className="space-y-1.5 text-sm text-muted-foreground">
             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Número de teléfono dedicado</li>

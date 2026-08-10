@@ -50,9 +50,9 @@ Rellena **todas** las variables en ambos archivos.
 
 1. Ve a [stripe.com](https://stripe.com) → Dashboard
 2. Crear 3 productos con sus precios:
-   - **Basic**: $99/mes → copia el Price ID → `STRIPE_PRICE_BASIC`
-   - **Pro**: $199/mes → copia el Price ID → `STRIPE_PRICE_PRO`
-   - **Business**: $349/mes → copia el Price ID → `STRIPE_PRICE_BUSINESS`
+   - **Starter**: €49/mes → copia el Price ID → `STRIPE_PRICE_BASIC`
+   - **Pro**: €99/mes → copia el Price ID → `STRIPE_PRICE_PRO`
+   - **Business**: €199/mes → copia el Price ID → `STRIPE_PRICE_BUSINESS`
 3. Copiar la clave secreta → `STRIPE_SECRET_KEY`
 4. Para el webhook local, usa Stripe CLI:
    ```bash

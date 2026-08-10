@@ -89,7 +89,7 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
       status: planInfo?.status || '',
       active: planInfo?.active ?? true,
       limits: {
-        calls: limits.calls,
+        minutes: limits.minutes,
         whatsapp: limits.whatsapp,
         numbers: limits.numbers,
       },

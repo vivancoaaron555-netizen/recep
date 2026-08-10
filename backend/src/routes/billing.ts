@@ -17,7 +17,7 @@ const PLAN_PRICES: Record<string, string> = {
 };
 
 const PLAN_NAMES: Record<string, string> = {
-  basic: 'Basic',
+  basic: 'Starter',
   pro: 'Pro',
   business: 'Business',
 };

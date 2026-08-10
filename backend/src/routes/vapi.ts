@@ -5,7 +5,7 @@ import { generateResponse, generateCallSummary, Message } from '../utils/groq';
 import { sendNewAppointmentEmail } from '../utils/email';
 import { createNotification } from './notifications';
 import { isCompanyAccessActive } from '../utils/access';
-import { getCompanyPlan, countCallsThisMonth } from '../utils/plans';
+import { getCompanyPlan, countMinutesThisMonth } from '../utils/plans';
 
 const router = Router();
 
@@ -154,11 +154,11 @@ router.post('/webhook', async (req: Request, res: Response) => {
         return res.json(unavailableAssistant(company.name));
       }
 
-      // Check monthly call limit by plan
+      // Check monthly call limit by plan (in minutes)
       const planInfo = await getCompanyPlan(company.id);
-      if (planInfo?.active && planInfo.limits.calls !== Infinity) {
-        const used = await countCallsThisMonth(company.id);
-        if (used >= planInfo.limits.calls) {
+      if (planInfo?.active && planInfo.limits.minutes !== Infinity) {
+        const used = await countMinutesThisMonth(company.id);
+        if (used >= planInfo.limits.minutes) {
           return res.json(unavailableAssistant(company.name));
         }
       }

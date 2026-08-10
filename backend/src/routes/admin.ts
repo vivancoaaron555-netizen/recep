@@ -93,9 +93,9 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
 
     const planCounts: Record<string, number> = { basic: 0, pro: 0, business: 0 };
     const PLAN_PRICES_MRR: Record<string, number> = {
-      basic: 99,
-      pro: 199,
-      business: 349,
+      basic: 49,
+      pro: 99,
+      business: 199,
     };
 
     let mrr = 0;

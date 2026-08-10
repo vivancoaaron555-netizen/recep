@@ -565,12 +565,12 @@ function Step4({ router }: { router: ReturnType<typeof useRouter> }) {
 
       <div className="card bg-muted/50 border-border/50 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="font-semibold">Plan Basic</span>
-          <span className="text-lg font-bold">$99/mes</span>
+          <span className="font-semibold">Plan Starter</span>
+          <span className="text-lg font-bold">€49/mes</span>
         </div>
         <ul className="space-y-1.5 text-sm text-muted-foreground">
-          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Asistente IA para llamadas y WhatsApp</li>
-          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Atención al cliente 24/7 automatizada</li>
+          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Asistente IA para llamadas</li>
+          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> 100 minutos/mes</li>
           <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Panel de control con estadísticas</li>
           <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> 7 días de prueba gratuita</li>
         </ul>

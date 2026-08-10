@@ -2,15 +2,15 @@ import { supabase } from './supabase';
 
 export interface PlanLimits {
   numbers: number;
-  calls: number;      // per month, Infinity = unlimited
+  minutes: number;    // per month, Infinity = unlimited
   whatsapp: number;   // per month, Infinity = unlimited
 }
 
 export const PLAN_LIMITS: Record<string, PlanLimits> = {
-  trial: { numbers: 1, calls: 100, whatsapp: 500 },
-  basic: { numbers: 1, calls: 100, whatsapp: 500 },
-  pro: { numbers: 3, calls: 500, whatsapp: Infinity },
-  business: { numbers: 10, calls: Infinity, whatsapp: Infinity },
+  trial: { numbers: 1, minutes: 100, whatsapp: 0 },
+  basic: { numbers: 1, minutes: 100, whatsapp: 0 },
+  pro: { numbers: 3, minutes: 300, whatsapp: Infinity },
+  business: { numbers: 10, minutes: Infinity, whatsapp: Infinity },
 };
 
 export interface CompanyPlan {
@@ -68,17 +68,18 @@ export async function getCompanyPlan(companyId: string): Promise<CompanyPlan | n
 
 // ── Usage counters (current calendar month) ─────────────────────────────────
 
-export async function countCallsThisMonth(companyId: string): Promise<number> {
+export async function countMinutesThisMonth(companyId: string): Promise<number> {
   try {
     const thisMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
-    const { count } = await supabase
+    const { data } = await supabase
       .from('calls')
-      .select('*', { count: 'exact', head: true })
+      .select('duration_seconds')
       .eq('company_id', companyId)
       .gte('created_at', thisMonth);
-    return count || 0;
+    const seconds = data?.reduce((acc, c) => acc + (c.duration_seconds || 0), 0) || 0;
+    return Math.round(seconds / 60);
   } catch (err) {
-    console.error('[plans] Error counting calls:', err);
+    console.error('[plans] Error counting minutes:', err);
     return 0;
   }
 }

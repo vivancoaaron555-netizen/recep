@@ -356,14 +356,14 @@ function HowItWorks() {
 const plans = [
   {
     id: 'basic',
-    name: 'Basic',
-    price: 99,
+    name: 'Starter',
+    price: 49,
     description: 'Ideal para negocios pequeños',
     color: 'border-border',
     badge: null,
     features: [
-      '100 llamadas/mes',
-      '500 mensajes WhatsApp',
+      '100 minutos/mes',
+      'Sin WhatsApp',
       '1 número de teléfono',
       'Dashboard básico',
       'Historial 30 días',
@@ -373,13 +373,13 @@ const plans = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 199,
+    price: 99,
     description: 'Para negocios en crecimiento',
     color: 'border-primary',
     badge: 'Más popular',
     features: [
-      '500 llamadas/mes',
-      'WhatsApp ilimitado',
+      '300 minutos/mes',
+      'WhatsApp incluido',
       '3 números de teléfono',
       'Analytics avanzado',
       'Historial completo',
@@ -391,12 +391,12 @@ const plans = [
   {
     id: 'business',
     name: 'Business',
-    price: 349,
+    price: 199,
     description: 'Para empresas',
     color: 'border-secondary/50',
     badge: 'Empresas',
     features: [
-      'Llamadas ilimitadas',
+      'Minutos ilimitados',
       'WhatsApp ilimitado',
       '10 números de teléfono',
       'Multi-sucursal',
@@ -450,7 +450,7 @@ function Pricing() {
 
               <div className="mb-6">
                 <div className="flex items-end gap-1">
-                  <span className="text-4xl font-black">${plan.price}</span>
+                  <span className="text-4xl font-black">€{plan.price}</span>
                   <span className="text-muted-foreground mb-1">/mes</span>
                 </div>
               </div>

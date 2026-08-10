@@ -175,9 +175,9 @@ export default function AdminPage() {
                 <h2 className="font-semibold mb-4">Distribución de Planes</h2>
                 <div className="grid grid-cols-3 gap-4">
                   {[
-                    { plan: 'basic', label: 'Basic', price: '$99', color: 'text-primary' },
-                    { plan: 'pro', label: 'Pro', price: '$199', color: 'text-secondary' },
-                    { plan: 'business', label: 'Business', price: '$349', color: 'text-warning' },
+                    { plan: 'basic', label: 'Starter', price: '€49', color: 'text-primary' },
+                    { plan: 'pro', label: 'Pro', price: '€99', color: 'text-secondary' },
+                    { plan: 'business', label: 'Business', price: '€199', color: 'text-warning' },
                   ].map((p) => (
                     <div key={p.plan} className="text-center p-4 rounded-xl bg-muted/30 border border-border">
                       <p className={`text-3xl font-black ${p.color}`}>{stats.planCounts[p.plan] || 0}</p>

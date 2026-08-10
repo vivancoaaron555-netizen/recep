@@ -23,11 +23,11 @@ interface Stats {
   plan?: string;
   status?: string;
   active?: boolean;
-  limits?: { calls: number; whatsapp: number; numbers: number };
+  limits?: { minutes: number; whatsapp: number; numbers: number };
 }
 
 const PLAN_LABELS: Record<string, string> = {
-  basic: 'Basic',
+  basic: 'Starter',
   pro: 'Pro',
   business: 'Business',
   trial: 'Prueba',
@@ -41,7 +41,7 @@ function UsageSection({ stats }: { stats: Stats }) {
   const pct = (used: number, limit: number) =>
     limit === Infinity ? null : Math.min(100, Math.round((used / limit) * 100));
 
-  const callsPct = pct(stats.callsMonth, limits.calls);
+  const callsPct = pct(stats.minutesMonth, limits.minutes);
   const whatsappPct = pct(stats.whatsappMonth, limits.whatsapp);
   const numbersPct = pct(0, limits.numbers);
   const reachedLimit = (callsPct !== null && callsPct >= 100) || (whatsappPct !== null && whatsappPct >= 100);
@@ -58,8 +58,8 @@ function UsageSection({ stats }: { stats: Stats }) {
       <div className="space-y-4">
         <div>
           <div className="flex items-center justify-between text-sm mb-1">
-            <span className="text-muted-foreground">Llamadas del mes</span>
-            <span className="font-medium">{stats.callsMonth} / {fmtLimit(limits.calls)}</span>
+            <span className="text-muted-foreground">Minutos del mes</span>
+            <span className="font-medium">{stats.minutesMonth} / {fmtLimit(limits.minutes)}</span>
           </div>
           <div className="h-2 rounded-full bg-muted overflow-hidden">
             <div className={`h-full rounded-full ${barColor(callsPct)}`} style={{ width: `${callsPct ?? 100}%` }} />
