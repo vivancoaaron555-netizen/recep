@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Check, ArrowRight, Loader2, CreditCard, Shield } from 'lucide-react';
@@ -14,9 +14,26 @@ const BENEFITS = [
   'Soporte técnico prioritario',
 ];
 
+const PLAN_INFO: Record<string, { name: string; price: string }> = {
+  basic: { name: 'Starter', price: '€49/mes' },
+  pro: { name: 'Pro', price: '€99/mes' },
+  business: { name: 'Business', price: '€199/mes' },
+};
+
 export default function TrialPage() {
+  return (
+    <Suspense fallback={null}>
+      <TrialPageContent />
+    </Suspense>
+  );
+}
+
+function TrialPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const plan = searchParams.get('plan') || 'basic';
+  const planInfo = PLAN_INFO[plan] || PLAN_INFO.basic;
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -38,7 +55,7 @@ export default function TrialPage() {
   }
 
   const handleStartTrial = () => {
-    router.push('/onboarding');
+    router.push(`/onboarding?plan=${plan}`);
   };
 
   return (
@@ -56,17 +73,17 @@ export default function TrialPage() {
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
             <span className="font-bold text-xl">Recept.ai</span>
           </Link>
-          <h1 className="text-3xl font-bold">Prueba gratuita por 7 días</h1>
+          <h1 className="text-3xl font-bold">Empieza con el plan {planInfo.name}</h1>
           <p className="text-muted-foreground mt-2">
-            Disfruta de todas las funciones sin compromiso. Cancela cuando quieras.
+            Configura tu empresa, elige tu recepcionista y activa tu plan. Cancela cuando quieras.
           </p>
         </div>
 
         <div className="card border-border/50">
           <div className="text-center mb-6">
-            <span className="text-5xl font-black gradient-text">$0</span>
-            <span className="text-muted-foreground ml-2">por 7 días</span>
-            <p className="text-sm text-muted-foreground mt-1">Luego €49/mes — cancela en cualquier momento</p>
+            <span className="text-5xl font-black gradient-text">{planInfo.price.split('/')[0]}</span>
+            <span className="text-muted-foreground ml-2">/mes</span>
+            <p className="text-sm text-muted-foreground mt-1">{planInfo.name} — cancela en cualquier momento</p>
           </div>
 
           <ul className="space-y-3 mb-8">
@@ -82,13 +99,13 @@ export default function TrialPage() {
 
           <button onClick={handleStartTrial} className="btn-primary w-full justify-center gap-2">
             <CreditCard className="w-4 h-4" />
-            Comenzar prueba gratis
+            Continuar con {planInfo.name}
             <ArrowRight className="w-4 h-4" />
           </button>
 
           <div className="flex items-center justify-center gap-2 mt-4 text-xs text-muted-foreground">
             <Shield className="w-3 h-3" />
-            Sin cargos hoy · Cancela cuando quieras
+            Pago seguro procesado por Stripe
           </div>
         </div>
       </motion.div>

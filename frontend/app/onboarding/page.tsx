@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2, User, Radio, Check,
@@ -524,32 +524,25 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
 }
 
 // ─── Step 4: Payment ──────────────────────────────────────────────────────────
-function Step4({ router }: { router: ReturnType<typeof useRouter> }) {
+const STEP4_PLANS: Record<string, { name: string; price: string; desc: string }> = {
+  basic: { name: 'Starter', price: '€49/mes', desc: 'Asistente IA para llamadas' },
+  pro: { name: 'Pro', price: '€99/mes', desc: 'Llamadas + WhatsApp con IA' },
+  business: { name: 'Business', price: '€199/mes', desc: 'Todo incluido, sin límites' },
+};
+
+function Step4({ plan }: { plan: string }) {
   const [loading, setLoading] = useState(false);
-  const [skipLoading, setSkipLoading] = useState(false);
+  const planInfo = STEP4_PLANS[plan] || STEP4_PLANS.basic;
 
   const handlePayment = async () => {
     setLoading(true);
     try {
-      const { url } = await api.billing.createCheckout('basic');
+      const { url } = await api.billing.createCheckout(plan);
       window.location.href = url;
     } catch (err: any) {
       toast.error(err.message || 'Error al iniciar pago');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSkip = async () => {
-    setSkipLoading(true);
-    try {
-      await api.billing.startTrial();
-      toast.success('¡Prueba gratis activada!');
-      router.push('/dashboard');
-    } catch (err: any) {
-      toast.error(err.message || 'Error al iniciar prueba');
-    } finally {
-      setSkipLoading(false);
     }
   };
 
@@ -559,41 +552,25 @@ function Step4({ router }: { router: ReturnType<typeof useRouter> }) {
         <div className="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center mx-auto mb-4">
           <CreditCard className="w-8 h-8 text-primary" />
         </div>
-        <h2 className="text-2xl font-bold mb-1">Último paso — configura tu pago</h2>
-        <p className="text-muted-foreground">No te cobraremos hoy, solo guardamos tu tarjeta</p>
+        <h2 className="text-2xl font-bold mb-1">Último paso — pago seguro</h2>
+        <p className="text-muted-foreground">Tu plan quedará activo al instante. Pago procesado por Stripe.</p>
       </div>
 
       <div className="card bg-muted/50 border-border/50 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="font-semibold">Plan Starter</span>
-          <span className="text-lg font-bold">€49/mes</span>
+          <span className="font-semibold">Plan {planInfo.name}</span>
+          <span className="text-lg font-bold">{planInfo.price}</span>
         </div>
         <ul className="space-y-1.5 text-sm text-muted-foreground">
-          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Asistente IA para llamadas</li>
-          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> 100 minutos/mes</li>
+          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> {planInfo.desc}</li>
+          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Recepcionista IA 24/7</li>
           <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Panel de control con estadísticas</li>
-          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> 7 días de prueba gratuita</li>
+          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Número dedicado incluido</li>
         </ul>
-        <p className="text-xs text-muted-foreground border-t border-border pt-3">
-          Cancela cuando quieras durante los 7 días de prueba. No habrá cargos hasta que termine el periodo.
-        </p>
       </div>
 
       <button onClick={handlePayment} disabled={loading} className="btn-primary w-full justify-center">
-        {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo a pago...</> : <>Configurar método de pago <ChevronRight className="w-4 h-4" /></>}
-      </button>
-
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">o</span>
-        </div>
-      </div>
-
-      <button onClick={handleSkip} disabled={skipLoading} className="btn-ghost w-full justify-center text-sm">
-        {skipLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Empezar prueba gratis'}
+        {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo a pago...</> : <>Pagar {planInfo.price} <ChevronRight className="w-4 h-4" /></>}
       </button>
     </div>
   );
@@ -601,7 +578,17 @@ function Step4({ router }: { router: ReturnType<typeof useRouter> }) {
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function OnboardingPage() {
+  return (
+    <Suspense fallback={null}>
+      <OnboardingPageContent />
+    </Suspense>
+  );
+}
+
+function OnboardingPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const plan = searchParams.get('plan') || 'basic';
   const { data: session, status } = useSession();
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -637,7 +624,7 @@ export default function OnboardingPage() {
               {currentStep === 1 && <Step1 onNext={() => setCurrentStep(2)} />}
               {currentStep === 2 && <Step2 onNext={() => setCurrentStep(3)} onBack={() => setCurrentStep(1)} />}
               {currentStep === 3 && <Step3 onNext={() => setCurrentStep(4)} onBack={() => setCurrentStep(2)} />}
-              {currentStep === 4 && <Step4 router={router} />}
+              {currentStep === 4 && <Step4 plan={plan} />}
             </motion.div>
           </AnimatePresence>
         </div>
