@@ -82,7 +82,6 @@ router.post('/create-checkout', authMiddleware, async (req: AuthRequest, res: Re
           userId: req.user!.userId,
           plan,
         },
-        trial_period_days: 7,
       },
     });
 
