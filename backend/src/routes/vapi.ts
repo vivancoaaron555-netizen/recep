@@ -63,22 +63,24 @@ router.post('/webhook', async (req: Request, res: Response) => {
       const vapiPhoneNumber = body?.message?.call?.phoneNumber?.number || '';
       const phoneNumberId = body?.message?.call?.phoneNumberId || '';
 
+      console.log(`[vapi/webhook] assistant-request: caller=${callerNumber}, dialed=${vapiPhoneNumber}, phoneNumberId=${phoneNumberId}`);
+
       let phoneRecord: any = null;
       if (vapiPhoneNumber) {
         const { data } = await supabase
           .from('phone_numbers')
           .select('company_id')
           .eq('twilio_number', vapiPhoneNumber)
-          .maybeSingle();
-        phoneRecord = data;
+          .limit(1);
+        if (data && data.length > 0) phoneRecord = data[0];
       }
       if (!phoneRecord && phoneNumberId) {
         const { data } = await supabase
           .from('phone_numbers')
           .select('company_id')
           .eq('twilio_number', phoneNumberId)
-          .maybeSingle();
-        phoneRecord = data;
+          .limit(1);
+        if (data && data.length > 0) phoneRecord = data[0];
       }
 
       let company: any = null;
@@ -123,6 +125,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
       }
 
       if (!company || !assistant) {
+        console.log(`[vapi/webhook] No company/assistant found for caller=${callerNumber}, dialed=${vapiPhoneNumber}. Using fallback.`);
         // Fallback generic assistant
         return res.json({
           assistant: {
@@ -151,6 +154,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
       // Check if the company still has access (trial expired / canceled)
       const hasAccess = await isCompanyAccessActive(company.id);
       if (!hasAccess) {
+        console.log(`[vapi/webhook] Company ${company.id} (${company.name}) has no access. Trial expired or plan canceled.`);
         return res.json(unavailableAssistant(company.name));
       }
 
@@ -159,9 +163,12 @@ router.post('/webhook', async (req: Request, res: Response) => {
       if (planInfo?.active && planInfo.limits.minutes !== Infinity) {
         const used = await countMinutesThisMonth(company.id);
         if (used >= planInfo.limits.minutes) {
+          console.log(`[vapi/webhook] Company ${company.id} reached minute limit: ${used}/${planInfo.limits.minutes}`);
           return res.json(unavailableAssistant(company.name));
         }
       }
+
+      console.log(`[vapi/webhook] Serving assistant "${assistant.name}" for company "${company.name}" (${company.id})`);
 
       const systemPrompt = generateSystemPrompt(assistant, company);
 
@@ -257,11 +264,23 @@ router.post('/webhook', async (req: Request, res: Response) => {
       const durationSeconds = Math.round(body?.message?.durationSeconds || 0);
       const phoneFrom = call?.customer?.number || 'unknown';
       const recordingUrl = call?.artifact?.recordingUrl || call?.recordingUrl || '';
+      const dialedNumber = call?.phoneNumber?.number || call?.phoneNumberId || '';
 
-      // Find company by metadata or caller's phone number
+      console.log(`[vapi/webhook] end-of-call-report: from=${phoneFrom}, to=${dialedNumber}, duration=${durationSeconds}s`);
+
+      // Find company by metadata, then by phone_numbers table, then by caller's phone
       let companyId = call?.metadata?.companyId;
 
-      if (!companyId) {
+      if (!companyId && dialedNumber) {
+        const { data: phoneMatch } = await supabase
+          .from('phone_numbers')
+          .select('company_id')
+          .eq('twilio_number', dialedNumber)
+          .limit(1);
+        if (phoneMatch && phoneMatch.length > 0) companyId = phoneMatch[0].company_id;
+      }
+
+      if (!companyId && phoneFrom) {
         const { data: companyByPhone } = await supabase
           .from('companies')
           .select('id')
@@ -278,10 +297,10 @@ router.post('/webhook', async (req: Request, res: Response) => {
         const appointmentCreated = transcript.toLowerCase().includes('cita creada') ||
           transcript.toLowerCase().includes('agendado');
 
-        await supabase.from('calls').insert({
+        const { error: insertError } = await supabase.from('calls').insert({
           company_id: companyId,
           phone_from: phoneFrom,
-          phone_to: call?.phoneNumberId || '',
+          phone_to: dialedNumber,
           duration_seconds: durationSeconds,
           transcript,
           summary,
@@ -290,6 +309,14 @@ router.post('/webhook', async (req: Request, res: Response) => {
           vapi_call_id: call?.id,
           status: 'completed',
         });
+
+        if (insertError) {
+          console.error('[vapi/webhook] Failed to save call:', insertError);
+        } else {
+          console.log(`[vapi/webhook] Call saved for company ${companyId}`);
+        }
+      } else {
+        console.log(`[vapi/webhook] Call NOT saved: companyId=${companyId}, hasTranscript=${!!transcript}`);
       }
 
       return res.json({ received: true });

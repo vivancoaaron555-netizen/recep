@@ -421,7 +421,7 @@ function Pricing() {
             Simple y transparente
           </h2>
           <p className="text-xl text-muted-foreground">
-            14 días gratis en todos los planes.
+            7 días gratis en todos los planes.
           </p>
         </div>
 
@@ -494,7 +494,7 @@ function CTASection() {
         >
           <h2 className="text-4xl md:text-6xl font-black mb-6">
             Empieza hoy.<br />
-            <span className="gradient-text">Es gratis por 14 días.</span>
+            <span className="gradient-text">Es gratis por 7 días.</span>
           </h2>
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
             Únete a cientos de negocios que ya automatizan su atención al cliente con Recept.ai.
@@ -506,7 +506,7 @@ function CTASection() {
                   ← 7 días gratis
                 </div>
               </div>
-              <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg">
+              <button onClick={() => signIn('google', { callbackUrl: '/onboarding' })} className="btn-primary btn-lg shadow-glow-lg">
                 Regístrate gratis
                 <ArrowRight className="w-5 h-5" />
               </button>

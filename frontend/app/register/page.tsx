@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { Check, Loader2 } from 'lucide-react';
 
 const FEATURES = [
-  '14 días gratis',
+  '7 días gratis',
   'Llamadas y WhatsApp con IA',
   'Atención 24/7 automatizada',
   'Panel de control en tiempo real',
@@ -46,7 +46,7 @@ export default function RegisterPage() {
             <span className="font-bold text-xl">Recept.ai</span>
           </Link>
           <h1 className="text-3xl font-bold">Crea tu cuenta</h1>
-          <p className="text-muted-foreground mt-2">Comienza con 14 días gratis, sin compromiso</p>
+          <p className="text-muted-foreground mt-2">Comienza con 7 días gratis, sin compromiso</p>
         </div>
 
         <div className="card border-border/50">
@@ -62,7 +62,7 @@ export default function RegisterPage() {
           </ul>
 
           <button
-            onClick={() => signIn('google', { callbackUrl: '/trial' })}
+            onClick={() => signIn('google', { callbackUrl: '/onboarding' })}
             className="btn-primary w-full justify-center gap-3"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">

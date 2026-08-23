@@ -50,6 +50,36 @@ const PERSONALITIES = [
   { id: 'calm', label: 'Tranquila', desc: 'Serena, pausada y confiable' },
 ];
 
+const PLANS = [
+  {
+    id: 'basic',
+    name: 'Starter',
+    price: '€49',
+    period: '/mes',
+    desc: 'Ideal para negocios pequeños',
+    features: ['100 minutos/mes', '1 número de teléfono', 'Dashboard básico', 'Historial 30 días', 'Soporte por email'],
+    highlighted: false,
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: '€99',
+    period: '/mes',
+    desc: 'Para negocios en crecimiento',
+    features: ['300 minutos/mes', 'WhatsApp incluido', '3 números de teléfono', 'Analytics avanzado', 'Historial completo', 'Soporte prioritario'],
+    highlighted: true,
+  },
+  {
+    id: 'business',
+    name: 'Business',
+    price: '€199',
+    period: '/mes',
+    desc: 'Para empresas',
+    features: ['Minutos ilimitados', 'WhatsApp ilimitado', '10 números de teléfono', 'Multi-sucursal', 'API access', 'Soporte 24/7'],
+    highlighted: false,
+  },
+];
+
 const DEFAULT_SCHEDULE = {
   monday: { open: '09:00', close: '18:00', active: true },
   tuesday: { open: '09:00', close: '18:00', active: true },
@@ -84,6 +114,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
 
       <div className="flex items-center justify-between mt-3">
         {[
+          { label: 'Plan', icon: CreditCard },
           { label: 'Empresa', icon: Building2 },
           { label: 'Recepcionista', icon: User },
           { label: 'Canales', icon: Radio },
@@ -101,6 +132,55 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ─── Step 0: Plan Selection ────────────────────────────────────────────────────
+function Step0({ selectedPlan, onSelect, onNext }: { selectedPlan: string; onSelect: (plan: string) => void; onNext: () => void }) {
+  return (
+    <div className="space-y-6 py-4">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold mb-1">Elige tu plan</h2>
+        <p className="text-muted-foreground">Comienza con 7 días gratis. Sin compromiso.</p>
+      </div>
+      <div className="grid gap-4">
+        {PLANS.map((p) => (
+          <button key={p.id} type="button" onClick={() => onSelect(p.id)}
+            className={`card text-left transition-all relative ${
+              selectedPlan === p.id
+                ? 'border-2 border-primary bg-primary/5 ring-1 ring-primary/20'
+                : 'border border-border hover:border-border/80'
+            }`}>
+            {p.highlighted && (
+              <span className="absolute -top-3 right-4 bg-primary text-white text-xs font-bold px-3 py-0.5 rounded-full">
+                Más popular
+              </span>
+            )}
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-semibold text-lg">{p.name}</div>
+                <div className="text-sm text-muted-foreground">{p.desc}</div>
+              </div>
+              <div className="text-right">
+                <span className="text-2xl font-bold">{p.price}</span>
+                <span className="text-muted-foreground">{p.period}</span>
+              </div>
+            </div>
+            <ul className="mt-3 grid grid-cols-2 gap-1">
+              {p.features.map((f) => (
+                <li key={f} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Check className="w-3 h-3 text-success shrink-0" /> {f}
+                </li>
+              ))}
+            </ul>
+          </button>
+        ))}
+      </div>
+      <p className="text-center text-xs text-muted-foreground">7 días gratis incluidos en cualquier plan. Cancela cuando quieras.</p>
+      <button type="button" onClick={onNext} className="btn-primary w-full justify-center">
+        Continuar <ChevronRight className="w-4 h-4" />
+      </button>
     </div>
   );
 }
@@ -524,10 +604,10 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
 }
 
 // ─── Step 4: Payment ──────────────────────────────────────────────────────────
-const STEP4_PLANS: Record<string, { name: string; price: string; desc: string }> = {
-  basic: { name: 'Starter', price: '€49/mes', desc: 'Asistente IA para llamadas' },
-  pro: { name: 'Pro', price: '€99/mes', desc: 'Llamadas + WhatsApp con IA' },
-  business: { name: 'Business', price: '€199/mes', desc: 'Todo incluido, sin límites' },
+const STEP4_PLANS: Record<string, { name: string; price: string; features: string[] }> = {
+  basic: { name: 'Starter', price: '€49/mes', features: ['100 minutos/mes', '1 número de teléfono', 'Dashboard básico', 'Historial 30 días'] },
+  pro: { name: 'Pro', price: '€99/mes', features: ['300 minutos/mes', 'WhatsApp incluido', '3 números de teléfono', 'Analytics avanzado', 'Personalidad avanzada'] },
+  business: { name: 'Business', price: '€199/mes', features: ['Minutos ilimitados', 'WhatsApp ilimitado', '10 números de teléfono', 'Multi-sucursal', 'API access', 'Soporte 24/7'] },
 };
 
 function Step4({ plan }: { plan: string }) {
@@ -562,10 +642,12 @@ function Step4({ plan }: { plan: string }) {
           <span className="text-lg font-bold">{planInfo.price}</span>
         </div>
         <ul className="space-y-1.5 text-sm text-muted-foreground">
-          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> {planInfo.desc}</li>
+          {planInfo.features.map((f) => (
+            <li key={f} className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> {f}</li>
+          ))}
           <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Recepcionista IA 24/7</li>
           <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Panel de control con estadísticas</li>
-          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> Número dedicado incluido</li>
+          <li className="flex items-center gap-2"><Check className="w-4 h-4 text-success" /> 7 días gratis incluidos</li>
         </ul>
       </div>
 
@@ -588,9 +670,10 @@ export default function OnboardingPage() {
 function OnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const plan = searchParams.get('plan') || 'basic';
+  const initialPlan = searchParams.get('plan') || 'basic';
   const { data: session, status } = useSession();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedPlan, setSelectedPlan] = useState(initialPlan);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -610,7 +693,7 @@ function OnboardingPageContent() {
           <span className="font-bold text-lg">Recept.ai</span>
         </div>
 
-        <ProgressBar step={currentStep} total={4} />
+        <ProgressBar step={currentStep + 1} total={5} />
 
         <div className="card">
           <AnimatePresence mode="wait">
@@ -621,10 +704,11 @@ function OnboardingPageContent() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
+              {currentStep === 0 && <Step0 selectedPlan={selectedPlan} onSelect={setSelectedPlan} onNext={() => setCurrentStep(1)} />}
               {currentStep === 1 && <Step1 onNext={() => setCurrentStep(2)} />}
               {currentStep === 2 && <Step2 onNext={() => setCurrentStep(3)} onBack={() => setCurrentStep(1)} />}
               {currentStep === 3 && <Step3 onNext={() => setCurrentStep(4)} onBack={() => setCurrentStep(2)} />}
-              {currentStep === 4 && <Step4 plan={plan} />}
+              {currentStep === 4 && <Step4 plan={selectedPlan} />}
             </motion.div>
           </AnimatePresence>
         </div>

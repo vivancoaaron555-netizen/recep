@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { supabase } from '../utils/supabase';
+import { sendWelcomeEmail } from '../utils/email';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { registerLimiter, loginLimiter, apiLimiter } from '../middleware/rateLimiter';
 
@@ -76,6 +77,9 @@ router.post('/google', async (req: Request, res: Response) => {
         status: 'trialing',
         current_period_end: trialEnd,
       });
+
+      // Send welcome email (fire-and-forget)
+      sendWelcomeEmail(created.email).catch(err => console.error('[google] Welcome email failed:', err));
 
       user = created;
     }
@@ -155,6 +159,9 @@ router.post('/register', async (req: Request, res: Response) => {
       status: 'trialing',
       current_period_end: trialEnd,
     });
+
+    // Send welcome email (fire-and-forget)
+    sendWelcomeEmail(user.email).catch(err => console.error('[register] Welcome email failed:', err));
 
     // Generate JWT
     const token = jwt.sign(

@@ -45,7 +45,7 @@ export default function LoginPage() {
         <div className="card border-border/50">
           <div className="space-y-4">
             <button
-              onClick={() => signIn('google', { callbackUrl: '/trial' })}
+              onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
               className="btn-primary w-full justify-center gap-3"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">

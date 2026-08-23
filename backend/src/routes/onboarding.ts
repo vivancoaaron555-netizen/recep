@@ -194,6 +194,8 @@ router.post('/assistant', async (req: AuthRequest, res: Response) => {
 });
 
 // ─── POST /api/onboarding/channels ──────────────────────────────────────────
+const SHARED_TRIAL_NUMBER = '+1 901 799 6050';
+
 router.post('/channels', async (req: AuthRequest, res: Response) => {
   try {
     const { data: company } = await supabase
@@ -212,10 +214,29 @@ router.post('/channels', async (req: AuthRequest, res: Response) => {
       .update({ onboarding_completed: true })
       .eq('id', company.id);
 
+    // Assign shared trial number if company doesn't have one yet
+    const { data: existingPhone } = await supabase
+      .from('phone_numbers')
+      .select('id')
+      .eq('company_id', company.id)
+      .eq('active', true)
+      .maybeSingle();
+
+    if (!existingPhone) {
+      await supabase.from('phone_numbers').insert({
+        company_id: company.id,
+        twilio_number: SHARED_TRIAL_NUMBER,
+        twilio_sid: 'shared-trial',
+        friendly_name: `${company.id}-trial`,
+        active: true,
+      });
+      console.log(`[onboarding/channels] Assigned shared trial number ${SHARED_TRIAL_NUMBER} to company ${company.id}`);
+    }
+
     return res.json({
       success: true,
       message: 'Canales activados',
-      phoneNumber: company.phone,
+      phoneNumber: SHARED_TRIAL_NUMBER,
       whatsappNumber: process.env.TWILIO_WHATSAPP_NUMBER ? process.env.TWILIO_WHATSAPP_NUMBER.replace('whatsapp:', '') : null,
       whatsappInstructions: process.env.TWILIO_WHATSAPP_NUMBER
         ? `Tus clientes pueden escribir al ${process.env.TWILIO_WHATSAPP_NUMBER.replace('whatsapp:', '')} en WhatsApp para ser atendidos por la IA.`
