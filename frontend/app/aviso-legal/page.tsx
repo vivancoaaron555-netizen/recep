@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const sections = [
   {
     title: '1. Identificación del titular',
-    body: `En cumplimiento de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se informa de que el titular de este sitio web es ${LEGAL.legalName}, con NIF ${LEGAL.nif}, domicilio en ${LEGAL.address}, ${LEGAL.city}. Contacto: ${LEGAL.email}.`,
+    body: `El titular de este sitio web es ${LEGAL.legalName}, con domicilio en ${LEGAL.address}, ${LEGAL.city}. Contacto: ${LEGAL.email}.`,
   },
   {
     title: '2. Objeto',
@@ -30,7 +30,7 @@ const sections = [
   },
   {
     title: '6. Legislación aplicable y jurisdicción',
-    body: `Este aviso legal se rige por la legislación española. Para la resolución de controversias, las partes se someten a los juzgados y tribunales de ${LEGAL.city || 'España'}.`,
+    body: `Este aviso legal se rige por las leyes del Estado de New Jersey. Para la resolución de controversias, las partes se someten a los juzgados y tribunales competentes de ${LEGAL.city}.`,
   },
 ];
 

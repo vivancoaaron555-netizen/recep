@@ -58,11 +58,11 @@ const sections = [
   },
   {
     title: '13. Ley aplicable y jurisdicción',
-    body: `Estos términos se rigen por la legislación española. Para cualquier controversia, ambas partes se someten a los juzgados y tribunales de ${LEGAL.city || 'España'}, salvo que la ley disponga un fuero necesario distinto.`,
+    body: `Estos términos se rigen por las leyes del Estado de ${LEGAL.city}. Para cualquier controversia, ambas partes se someten a los juzgados y tribunales competentes de ${LEGAL.city}, salvo que la ley disponga un fuero necesario distinto.`,
   },
   {
     title: '14. Arbitraje',
-    body: 'Cualquier controversia derivada de estos términos o del uso del servicio se resolverá mediante arbitraje conforme a la legislación española, renunciando a la vía judicial, salvo que la ley disponga un fuero necesario distinto.',
+    body: 'Cualquier controversia derivada de estos términos o del uso del servicio se resolverá mediante arbitraje conforme a las leyes del Estado de New Jersey, renunciando a la vía judicial, salvo que la ley disponga un fuero necesario distinto.',
   },
   {
     title: '15. Contenido de los usuarios',

@@ -38,7 +38,7 @@ const sections = [
   },
   {
     title: '8. Derechos',
-    body: `Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad escribiendo a ${LEGAL.email}, indicando el derecho que deseas ejercer. También puedes presentar una reclamación ante la Agencia Española de Protección de Datos (www.aepd.es).`,
+    body: `Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad escribiendo a ${LEGAL.email}, indicando el derecho que deseas ejercer.`,
   },
   {
     title: '9. Menores',
@@ -62,7 +62,7 @@ const sections = [
   },
   {
     title: '14. Arbitraje',
-    body: `Cualquier controversia derivada de esta política o del uso del servicio se resolverá mediante arbitraje conforme a la legislación española, renunciando a la vía judicial, salvo que la ley disponga un fuero necesario distinto.`,
+    body: `Cualquier controversia derivada de esta política o del uso del servicio se resolverá mediante arbitraje conforme a las leyes del Estado de New Jersey, renunciando a la vía judicial, salvo que la ley disponga un fuero necesario distinto.`,
   },
 ];
 

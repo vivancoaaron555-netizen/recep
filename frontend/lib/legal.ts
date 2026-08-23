@@ -1,11 +1,11 @@
 export const LEGAL = {
   brand: 'Recept.ai',
-  legalName: '[Razón social de tu empresa]',
-  nif: '[CIF / NIF]',
-  address: '[Dirección completa]',
-  city: '[Ciudad, País]',
+  legalName: 'Recept.AI',
+  nif: 'N/A',
+  address: 'New Jersey',
+  city: 'New Jersey, United States',
   email: 'hola@recept.ink',
-  phone: '[Teléfono de contacto]',
+  phone: 'N/A',
   website: 'recept.ink',
-  lastUpdated: '31 de julio de 2026',
+  lastUpdated: '23 de agosto de 2026',
 };
