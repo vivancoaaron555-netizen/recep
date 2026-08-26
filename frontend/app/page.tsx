@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Phone, MessageCircle, Calendar, Clock, Zap, Shield,
@@ -14,6 +14,7 @@ import {
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -43,8 +44,8 @@ function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <button onClick={() => signIn('google')} className="btn-ghost text-sm">Iniciar Sesión</button>
-          <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary text-sm">
+          <button onClick={() => router.push('/login')} className="btn-ghost text-sm">Iniciar Sesión</button>
+          <button onClick={() => router.push('/register')} className="btn-primary text-sm">
             Comenzar Gratis <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -67,8 +68,8 @@ function Navbar() {
             </a>
           ))}
           <div className="pt-2 space-y-2">
-            <button onClick={() => signIn('google')} className="btn-secondary w-full justify-center">Iniciar Sesión</button>
-            <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary w-full justify-center">Comenzar Gratis</button>
+            <button onClick={() => { router.push('/login'); setMobileOpen(false); }} className="btn-secondary w-full justify-center">Iniciar Sesión</button>
+            <button onClick={() => { router.push('/register'); setMobileOpen(false); }} className="btn-primary w-full justify-center">Comenzar Gratis</button>
           </div>
         </div>
       )}
@@ -78,6 +79,7 @@ function Navbar() {
 
 // ─── Hero Section ────────────────────────────────────────────────────────────
 function Hero() {
+  const router = useRouter();
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
       {/* Background glow */}
@@ -122,7 +124,7 @@ function Hero() {
                   ← 7 días gratis
                 </div>
               </div>
-              <button onClick={() => signIn('google', { callbackUrl: '/trial' })} className="btn-primary btn-lg shadow-glow-lg animate-pulse-glow text-lg px-10">
+              <button onClick={() => router.push('/register')} className="btn-primary btn-lg shadow-glow-lg animate-pulse-glow text-lg px-10">
                 Regístrate gratis
                 <ArrowRight className="w-5 h-5" />
               </button>
@@ -411,6 +413,7 @@ const plans = [
 
 function Pricing() {
   const [billing] = useState<'monthly'>('monthly');
+  const router = useRouter();
 
   return (
     <section id="pricing" className="section bg-background">
@@ -456,7 +459,7 @@ function Pricing() {
               </div>
 
               <button
-                onClick={() => signIn('google', { callbackUrl: `/trial?plan=${plan.id}` })}
+                onClick={() => router.push(`/register?plan=${plan.id}`)}
                 className={`${plan.id === 'pro' ? 'btn-primary' : 'btn-outline'} w-full justify-center mb-6`}
               >
                 Comenzar gratis
@@ -480,6 +483,7 @@ function Pricing() {
 
 // ─── CTA Final ────────────────────────────────────────────────────────────────
 function CTASection() {
+  const router = useRouter();
   return (
     <section className="section bg-background relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
@@ -506,7 +510,7 @@ function CTASection() {
                   ← 7 días gratis
                 </div>
               </div>
-              <button onClick={() => signIn('google', { callbackUrl: '/onboarding' })} className="btn-primary btn-lg shadow-glow-lg">
+              <button onClick={() => router.push('/register')} className="btn-primary btn-lg shadow-glow-lg">
                 Regístrate gratis
                 <ArrowRight className="w-5 h-5" />
               </button>

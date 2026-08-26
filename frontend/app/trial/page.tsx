@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, Suspense } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/session-provider';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -29,7 +29,7 @@ export default function TrialPage() {
 }
 
 function TrialPageContent() {
-  const { data: session, status } = useSession();
+  const { session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const plan = searchParams.get('plan') || 'basic';

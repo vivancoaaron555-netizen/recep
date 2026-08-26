@@ -10,7 +10,7 @@ import {
   Link
 } from 'lucide-react';
 import { api, setApiToken } from '@/lib/api';
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/session-provider';
 import { toast } from 'sonner';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -671,7 +671,7 @@ function OnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialPlan = searchParams.get('plan') || 'basic';
-  const { data: session, status } = useSession();
+  const { session, status } = useSession();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedPlan, setSelectedPlan] = useState(initialPlan);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
