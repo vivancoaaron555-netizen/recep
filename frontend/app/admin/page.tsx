@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { AppLayout } from '@/components/AppLayout';
 import { api, setApiToken } from '@/lib/api';
-import { useSession } from '@/lib/session-provider';
+import { useSession } from 'next-auth/react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -63,7 +63,7 @@ export default function AdminPage() {
   const [pipeline, setPipeline] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'companies' | 'pipeline'>('overview');
-  const { session, status } = useSession();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     if (status === 'loading') return;

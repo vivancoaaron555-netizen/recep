@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
-import { SessionProvider } from '@/lib/session-provider';
+import { AuthProvider } from '@/lib/auth-provider';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 
@@ -46,11 +46,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={`${inter.variable} font-sans bg-background text-foreground antialiased`}>
-        <SessionProvider>
+        <AuthProvider>
           {children}
           <CookieConsentBanner />
           <GoogleAnalytics />
-        </SessionProvider>
+        </AuthProvider>
         <Toaster
           theme="dark"
           position="top-right"

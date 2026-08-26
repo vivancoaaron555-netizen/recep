@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useSession, useSessionCompat } from '@/lib/session-provider';
+import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -28,7 +28,7 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { session, status, logout } = useSession();
+  const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [company, setCompany] = useState<any>(null);
@@ -100,7 +100,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
 
   const handleLogout = () => {
-      router.push('/login');
+    signOut({ callbackUrl: '/login' });
     toast.success('Sesión cerrada');
   };
 
