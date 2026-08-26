@@ -674,12 +674,31 @@ function OnboardingPageContent() {
   const { data: session, status } = useSession();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedPlan, setSelectedPlan] = useState(initialPlan);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
 
   useEffect(() => {
     if (status === 'loading') return;
     if (!session?.backendToken) { router.push('/login'); return; }
     setApiToken(session.backendToken);
+
+    // Admin bypass: skip onboarding, go straight to dashboard
+    if (session.user?.role === 'admin') {
+      // If admin has company, go to dashboard. If not, let them complete onboarding.
+      if (session.company?.id) {
+        router.push('/dashboard');
+        return;
+      }
+    }
+    setCheckingAdmin(false);
   }, [session, status, router]);
+
+  if (checkingAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
